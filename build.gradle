@@ -1,0 +1,122 @@
+/* Mantaro's build.gradle */
+
+//Imports
+import org.apache.tools.ant.filters.ReplaceTokens
+
+
+//Plugins
+plugins {
+	//Compiles Java
+	id 'java'
+	//Adds an Executable Manifest
+	id 'application'
+	//Creates FatJars
+	id 'com.github.johnrengelman.shadow' version '1.2.4'
+	//Checks for RestActions
+	id 'com.sedmelluq.jdaction' version '1.0.1'
+}
+
+//Define the Main Class
+mainClassName = "net.kodehawa.mantaroself.MantaroSelf"
+
+//Use an unified versioning system
+def ver = new Version(major: 1, minor: 0, revision: 0)
+version ver.toString()
+
+//We are going to use Java 8
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+	jcenter()
+	maven {
+		url  "http://dl.bintray.com/frederikam/JCA"
+	}
+}
+
+dependencies {
+	compile 'net.dv8tion:JDA:3.0.0_176'
+
+	compile 'org.reflections:reflections:0.9.10'
+	compile 'ch.qos.logback:logback-classic:0.9.26'
+
+	compile 'com.udojava:EvalEx:1.0'
+	compile 'org.apache-extras.beanshell:bsh:2.0b6'
+	compile 'org.codehaus.groovy:groovy-all:2.4.9'
+
+	//compile 'net.sandius.rembulan:rembulan-compiler:0.1-SNAPSHOT'
+	//compile 'net.sandius.rembulan:rembulan-runtime:0.1-SNAPSHOT'
+	//compile 'net.sandius.rembulan:rembulan-stdlib:0.1-SNAPSHOT'
+
+	compile 'us.monoid.web:resty:0.3.2'
+	compile group: 'org.jsoup', name: 'jsoup', version: '1.8.3'
+
+	compile 'br.com.brjdevs:utils:1.0.0_4'
+
+	compile 'com.google.guava:guava:19.0'
+	compile 'com.google.code.gson:gson:2.8.0'
+
+	compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.0.pr1'
+
+	compile fileTree(dir: 'lib', include: '*.jar')
+
+	compile "org.projectlombok:lombok:1.16.16"
+
+	compile 'frederikam:JCA:1.0'
+
+    compile 'net.sf.trove4j:trove4j:3.0.3'
+
+    compile 'net.bytebuddy:byte-buddy:1.6.9'
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '3.2'
+}
+
+//Task for the versioning system
+task prepareSource(type: Copy) {
+	from 'src/main/java'
+	into 'build/prepared-src'
+	filter(ReplaceTokens, tokens: [
+		version: ver.toString()
+	])
+	dependsOn clean
+}
+prepareSource.dependsOn clean
+
+compileJava {
+	source = prepareSource.destinationDir
+	classpath = sourceSets.main.compileClasspath
+	options.encoding = 'UTF-8'
+	dependsOn prepareSource
+}
+
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+build.dependsOn shadowJar
+
+artifacts {
+	archives shadowJar
+}
+
+jar {
+	classifier = "nodeps"
+}
+
+shadowJar {
+	classifier = ""
+}
+
+class Version {
+	String major, minor, revision
+
+	static String getBuild() {
+		return new Date().format('ddMMyyyy')
+	}
+
+	String toString() {
+		"${major}.${minor}.${revision}_$build"
+	}
+}

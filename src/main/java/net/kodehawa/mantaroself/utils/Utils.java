@@ -140,7 +140,7 @@ public class Utils {
 	 * Fetches an Object from any given URL. Uses vanilla Java methods.
 	 * Can retrieve text, JSON Objects, XML and probably more.
 	 *
-	 * @param url   The URL to get the object from.
+	 * @param url The URL to get the object from.
 	 * @return The object as a parsed UTF-8 string.
 	 */
 	public static String wget(String url) {
@@ -162,7 +162,7 @@ public class Utils {
 	/**
 	 * Same than above, but using resty. Way easier tbh.
 	 *
-	 * @param url   The URL to get the object from.
+	 * @param url The URL to get the object from.
 	 * @return The object as a parsed string.
 	 */
 	public static String wgetResty(String url) {

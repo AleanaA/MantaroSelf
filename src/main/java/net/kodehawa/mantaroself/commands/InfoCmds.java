@@ -7,7 +7,6 @@ import net.dv8tion.jda.core.entities.*;
 import net.kodehawa.mantaroself.MantaroInfo;
 import net.kodehawa.mantaroself.MantaroSelf;
 import net.kodehawa.mantaroself.commands.info.CommandStatsManager;
-import net.kodehawa.mantaroself.commands.info.GuildStatsManager;
 import net.kodehawa.mantaroself.commands.info.StatsHelper.CalculatedDoubleValues;
 import net.kodehawa.mantaroself.commands.info.StatsHelper.CalculatedIntValues;
 import net.kodehawa.mantaroself.core.CommandProcessor;
@@ -32,6 +31,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static net.kodehawa.mantaroself.MantaroSelf.prefix;
 import static net.kodehawa.mantaroself.commands.info.AsyncInfoMonitor.*;
 import static net.kodehawa.mantaroself.commands.info.HelpUtils.forType;
 import static net.kodehawa.mantaroself.commands.info.StatsHelper.calculateDouble;
@@ -68,18 +68,9 @@ public class InfoCmds implements HasPostLoad {
 				long hours = minutes / 60;
 				long days = hours / 24;
 
-				event.getChannel().sendMessage(new EmbedBuilder()
-					.setColor(Color.PINK)
-					.setAuthor("About Mantaro", "http://polr.me/mantaro", "https://puu.sh/suxQf/e7625cd3cd.png")
-					.setThumbnail("https://puu.sh/suxQf/e7625cd3cd.png")
-					.setDescription("Hello, I'm **MantaroBot**! I'm here to make your life a little easier. To get started, type `~>help`!\n" +
-						"Some of my features include:\n" +
-						"\u2713 Moderation made easy (``Mass kick/ban, prune commands, logs and more!``)\n" +
-						"\u2713 Funny and useful commands see `~>help anime` or `~>help hug` for examples.\n" +
-						"\u2713 [Extensive support](https://discordapp.com/invite/cMTmuPa)! |" +
-						" [Support Mantaro development!](https://www.patreon.com/mantaro)"
-					)
-					.addField("MantaroBot Version", MantaroInfo.VERSION, false)
+				event.getChannel().sendMessage(thiz.baseEmbed(event, "About this Selfbot")
+					.setDescription("Hello, I'm a Mantaro-based Selfbot. Hello!")
+					.addField("MantaroSelf Version", MantaroInfo.VERSION, false)
 					.addField("Uptime", String.format(
 						"%d days, %02d hrs, %02d min",
 						days, hours % 24, minutes % 60
@@ -97,7 +88,7 @@ public class InfoCmds implements HasPostLoad {
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "About Command")
 				.addField("Description:", "Read info about Mantaro!", false)
-				.addField("Information", "~>about credits lists everyone who has helped on the bot's development, ~>about patreon lists our patreon supporters", false)
+				.addField("Information", prefix() + "about credits lists everyone who has helped on the bot's development", false)
 				.setColor(Color.PINK)
 				.build())
 			.build());
@@ -117,8 +108,8 @@ public class InfoCmds implements HasPostLoad {
 			.help((thiz, event) -> thiz.helpEmbed(event, "Avatar")
 				.setDescription("Get user avatar URLs")
 				.addField("Usage",
-					"~>avatar - Get your avatar url" +
-						"\n ~>avatar <mention> - Get a user's avatar url.", false)
+					prefix() + "avatar - Get your avatar url" +
+						"\n " + prefix() + "avatar <mention> - Get a user's avatar url.", false)
 				.build())
 			.build());
 	}
@@ -177,7 +168,7 @@ public class InfoCmds implements HasPostLoad {
 
 			.code((thiz, event, content, args) -> {
 				if (content.isEmpty()) {
-					String prefix = MantaroData.config().get().prefix;
+					String prefix = MantaroData.config().get().prefix();
 
 					EmbedBuilder embed = thiz.baseEmbed(event, "MantaroBot Help")
 						.setColor(Color.PINK)
@@ -210,7 +201,7 @@ public class InfoCmds implements HasPostLoad {
 				.addField("Description:", jokes.get(r.nextInt(jokes.size())), false)
 				.addField(
 					"Usage:",
-					"`~>help`: Return information about who issued the command.\n`~>help <command>`: Return information about the command specified.",
+					"`" + prefix() + "help`: Return information about who issued the command.\n`" + prefix() + "help <command>`: Return information about the command specified.",
 					false
 				).build())
 			.build());
@@ -237,7 +228,6 @@ public class InfoCmds implements HasPostLoad {
 					+ "Users: " + guilds.stream().flatMap(guild -> guild.getMembers().stream()).map(user -> user.getUser().getId()).distinct().count() + "\n"
 					+ "Threads: " + Thread.activeCount() + "\n"
 					+ "Executed Commands: " + CommandListener.getCommandTotal() + "\n"
-					+ "Total Guild Events: \n" + GuildStatsManager.resume(GuildStatsManager.TOTAL_EVENTS).replace("`", "") + "\n"
 					+ "Memory: " + (getTotalMemory() - getFreeMemory()) + "MB / " + getMaxMemory() + "MB" + "\n"
 					+ "```").queue();
 			})
@@ -314,7 +304,6 @@ public class InfoCmds implements HasPostLoad {
 
 			.code((thiz, event, content, args) -> {
 				if (content.isEmpty()) {
-					GuildStatsManager.MILESTONE = (((MantaroSelf.getInstance().getGuilds().size() + 99) / 100) * 100) + 100;
 					List<Guild> guilds = MantaroSelf.getInstance().getGuilds();
 
 					List<VoiceChannel> voiceChannels = MantaroSelf.getInstance().getVoiceChannels();
@@ -339,8 +328,6 @@ public class InfoCmds implements HasPostLoad {
 							.addField("Voice Channels per Server", String.format(Locale.ENGLISH, "Min: %d\nAvg: %.1f\nMax: %d", voiceChannelsPerGuild.min, voiceChannelsPerGuild.avg, voiceChannelsPerGuild.max), true)
 							.addField("Total commands (including custom)", String.valueOf(CommandProcessor.REGISTRY.commands().size()), true)
 							.addField("Big Servers", String.valueOf(bG), true)
-							.setFooter("! Guilds to next milestone (" + GuildStatsManager.MILESTONE + "): " + (GuildStatsManager.MILESTONE - MantaroSelf.getInstance().getGuilds().size())
-								, event.getJDA().getSelfUser().getAvatarUrl())
 							.build()
 					).queue();
 					return;
@@ -410,48 +397,11 @@ public class InfoCmds implements HasPostLoad {
 					return;
 				}
 
-				if (args[0].equals("guilds")) {
-					if (args.length > 1) {
-						String what = args[1];
-						if (what.equals("total")) {
-							event.getChannel().sendMessage(GuildStatsManager.fillEmbed(GuildStatsManager.TOTAL_EVENTS, thiz.baseEmbed(event, "Guild Stats | Total")).build()).queue();
-							return;
-						}
-
-						if (what.equals("daily")) {
-							event.getChannel().sendMessage(GuildStatsManager.fillEmbed(GuildStatsManager.DAY_EVENTS, thiz.baseEmbed(event, "Guild Stats | Daily")).build()).queue();
-							return;
-						}
-
-						if (what.equals("hourly")) {
-							event.getChannel().sendMessage(GuildStatsManager.fillEmbed(GuildStatsManager.HOUR_EVENTS, thiz.baseEmbed(event, "Guild Stats | Hourly")).build()).queue();
-							return;
-						}
-
-						if (what.equals("now")) {
-							event.getChannel().sendMessage(GuildStatsManager.fillEmbed(GuildStatsManager.MINUTE_EVENTS, thiz.baseEmbed(event, "Guild Stats | Now")).build()).queue();
-							return;
-						}
-					}
-
-					//Default
-					event.getChannel().sendMessage(thiz.baseEmbed(event, "Guild Stats")
-						.addField("Now", GuildStatsManager.resume(GuildStatsManager.MINUTE_EVENTS), false)
-						.addField("Hourly", GuildStatsManager.resume(GuildStatsManager.HOUR_EVENTS), false)
-						.addField("Daily", GuildStatsManager.resume(GuildStatsManager.DAY_EVENTS), false)
-						.addField("Total", GuildStatsManager.resume(GuildStatsManager.TOTAL_EVENTS), false)
-						.setFooter("Guilds: " + MantaroSelf.getInstance().getGuilds().size(), null)
-						.build()
-					).queue();
-
-					return;
-				}
-
 				thiz.onHelp(event);
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "Statistics command")
 				.setDescription("See the bot, usage or vps statistics")
-				.addField("Usage", "~>stats <usage/host/cmds/guilds>", true)
+				.addField("Usage", prefix() + "stats <usage/host/cmds/guilds>", true)
 				.build())
 			.build());
 	}
@@ -492,7 +442,7 @@ public class InfoCmds implements HasPostLoad {
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "UserInfo Command")
 				.addField("Description:", "See information about specific users.", false)
-				.addField("Usage:", "`~>userinfo @User`: Get information about the specific user.\n`~>userinfo`: Get information about yourself!", false)
+				.addField("Usage:", "`" + prefix() + "userinfo @User`: Get information about the specific user.\n`" + prefix() + "userinfo`: Get information about yourself!", false)
 				.build())
 			.build());
 	}

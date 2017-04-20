@@ -22,11 +22,8 @@
         </encoder>
     </appender>
 
-    <appender name="DISCORD" class="net.kodehawa.mantaroself.log.DiscordLogBack"/>
-
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
-        <appender-ref ref="DISCORD"/>
     </root>
 </configuration>

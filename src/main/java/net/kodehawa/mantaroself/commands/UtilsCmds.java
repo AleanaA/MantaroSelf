@@ -33,6 +33,7 @@ import java.util.function.IntConsumer;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static net.kodehawa.mantaroself.MantaroSelf.prefix;
 import static net.kodehawa.mantaroself.data.MantaroData.config;
 
 @Slf4j
@@ -73,7 +74,7 @@ public class UtilsCmds {
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "Google search")
 				.setDescription("Searches on google.")
-				.addField("Usage", "~>google <query>", false)
+				.addField("Usage", prefix() + "google <query>", false)
 				.addField("Parameters", "query: the search query", false)
 				.build())
 			.build());
@@ -96,7 +97,7 @@ public class UtilsCmds {
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "Time")
 				.setDescription("Get the time in a specific timezone.\n"
-					+ "~>time [timezone]. Retrieves the time in the specified timezone [**Don't write a country**!].\n"
+					+ prefix() + "time [timezone]. Retrieves the time in the specified timezone [**Don't write a country**!].\n"
 					+ "**Parameter specification**\n"
 					+ "[timezone] A **valid** timezone [no countries!] between GMT-12 and GMT+14")
 				.build())
@@ -155,7 +156,7 @@ public class UtilsCmds {
 			.help((thiz, event) -> thiz.helpEmbed(event, "Translation command")
 				.setDescription("Translates the given sentence.\n"
 					+ "**Usage:**\n"
-					+ "~>translate <sourcelang> <outputlang> <sentence>.\n"
+					+ prefix() + "translate <sourcelang> <outputlang> <sentence>.\n"
 					+ "**Parameter explanation**\n"
 					+ "sourcelang: The language the sentence is written in. Use codes (english = en)\n"
 					+ "outputlang: The language you want to translate to (french = fr, for example)\n"
@@ -180,7 +181,7 @@ public class UtilsCmds {
 						url = "http://api.urbandictionary.com/v0/define?term=" + URLEncoder.encode(beheadedSplit[0], "UTF-8");
 					} catch (UnsupportedEncodingException ignored) {
 					}
-					String json = Utils.wgetResty(url, event);
+					String json = Utils.wgetResty(url);
 					UrbanData data = GsonDataManager.GSON_PRETTY.fromJson(json, UrbanData.class);
 
 					long end = System.currentTimeMillis() - start;
@@ -231,7 +232,7 @@ public class UtilsCmds {
 				.setColor(Color.CYAN)
 				.setDescription("Retrieves definitions from **Urban Dictionary**.\n"
 					+ "Usage: \n"
-					+ "~>urban <term>-><number>: Retrieve a definition based on the given parameters.\n"
+					+ prefix() + "urban <term>-><number>: Retrieve a definition based on the given parameters.\n"
 					+ "Parameter description:\n"
 					+ "term: The term you want to look up\n"
 					+ "number: **OPTIONAL** Parameter defined with the modifier '->' after the term. You don't need to use it" +
@@ -243,7 +244,7 @@ public class UtilsCmds {
 
 	@RegisterCommand
 	public static void weather(CommandRegistry cr) {
-		if (config().get().weatherAppId == null) {
+		if (config().get().weatherAppId() == null) {
 			log.info("OpenWeatherMap AppId not defined. Anime Commands will not load.");
 			return;
 		}
@@ -258,9 +259,9 @@ public class UtilsCmds {
 				EmbedBuilder embed = new EmbedBuilder();
 				try {
 					long start = System.currentTimeMillis();
-					String APP_ID = config().get().weatherAppId;
+					String APP_ID = config().get().weatherAppId();
 					String json = Utils.wget(String.format("http://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s", URLEncoder
-						.encode(content, "UTF-8"), APP_ID), event);
+						.encode(content, "UTF-8"), APP_ID));
 					WeatherData data = GsonDataManager.GSON_PRETTY.fromJson(json, WeatherData.class);
 
 					String countryCode = data.sys.country;
@@ -299,7 +300,7 @@ public class UtilsCmds {
 			.help((thiz, event) -> thiz.helpEmbed(event, "Weather command")
 				.setDescription("This command retrieves information from OpenWeatherMap. Used to check **forecast information.**\n"
 					+ "> Usage:\n"
-					+ "~>weather <city>,<countrycode>: Retrieves the forecast information for the given location.\n"
+					+ prefix() + "weather <city>,<countrycode>: Retrieves the forecast information for the given location.\n"
 					+ "> Parameters:\n"
 					+ "city: Your city name, e.g. New York\n"
 					+ "countrycode: (OPTIONAL) The abbreviation for your country, for example US (USA) or MX (Mexico).")
@@ -349,7 +350,7 @@ public class UtilsCmds {
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "Youtube MP3 command")
 				.setDescription("Youtube video to MP3 converter")
-				.addField("Usage", "~>ytmp3 <youtube link>", true)
+				.addField("Usage", prefix() + "ytmp3 <youtube link>", true)
 				.addField("Parameters", "youtube link: The link of the video to convert to MP3", true)
 				.build())
 			.build());

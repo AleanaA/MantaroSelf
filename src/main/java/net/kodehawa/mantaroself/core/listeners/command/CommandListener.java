@@ -2,6 +2,7 @@ package net.kodehawa.mantaroself.core.listeners.command;
 
 import br.com.brjdevs.highhacks.eventbus.Listener;
 import br.com.brjdevs.java.utils.extensions.Async;
+import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import lombok.Getter;
@@ -10,10 +11,9 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.hooks.EventListener;
 import net.kodehawa.mantaroself.core.CommandProcessor;
-import net.kodehawa.mantaroself.utils.Snow64;
+import net.kodehawa.mantaroself.utils.Utils;
 import net.kodehawa.mantaroself.utils.commands.Cleverbot;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 
@@ -72,24 +72,15 @@ public class CommandListener implements EventListener {
 		try {
 			if (CUSTOM_PROCESSORS.getOrDefault(event.getChannel().getId(), DEFAULT_PROCESSOR).run(event))
 				commandTotal++;
-		} catch (IndexOutOfBoundsException e) {
-			event.getChannel().sendMessage(EmoteReference.ERROR + "Your query returned no results or incorrect type arguments. Check the command help.").queue();
-			log.warn("Exception catched and alternate message sent. We should look into this, anyway.", e);
-		} catch (PermissionException e) {
-			event.getChannel().sendMessage(EmoteReference.ERROR + "I don't have permission to do this! I need the permission: " + e.getPermission()).queue();
-			log.warn("Exception catched and alternate message sent. We should look into this, anyway.", e);
-		} catch (IllegalArgumentException e) { //NumberFormatException == IllegalArgumentException
-			event.getChannel().sendMessage(EmoteReference.ERROR + "Incorrect type arguments. Check command help.").queue();
-			log.warn("Exception catched and alternate message sent. We should look into this, anyway.", e);
 		} catch (Exception e) {
-			String id = Snow64.toSnow64(Long.parseLong(event.getMessage().getId()));
+			String post = null;
+			try {
+				post = Utils.paste(Throwables.getStackTraceAsString(e));
+			} catch (Exception ignored) {
+			}
 
-			event.getChannel().sendMessage(
-				EmoteReference.ERROR + "I ran into an unexpected error. (Error ID: ``" + id + "``)\n" +
-					"If you want, **contact ``Kodehawa#3457`` on DiscordBots** (popular bot guild), or join our **support guild** (Link on ``~>about``). Don't forget the Error ID!"
-			).queue();
-
-			log.warn("Unexpected Exception on Command ``" + event.getMessage().getRawContent() + "`` (Error ID: ``" + id + "``)", e);
+			event.getChannel().sendMessage(EmoteReference.ERROR + "Error happened. Check logs." + (post == null ? "" : " (Pasted: " + post + ")")).queue();
+			log.warn("Error on Command ``" + event.getMessage().getRawContent() + "``: ", e);
 		}
 	}
 }

@@ -16,7 +16,7 @@ public class CommandProcessor {
 		if (MantaroSelf.getLoadStatus() != LoadState.POSTLOAD) return false;
 
 		String rawCmd = event.getMessage().getRawContent();
-		String prefix = MantaroData.config().get().prefix;
+		String prefix = MantaroData.config().get().prefix();
 		if (rawCmd.startsWith(prefix)) rawCmd = rawCmd.substring(prefix.length());
 		else return false;
 

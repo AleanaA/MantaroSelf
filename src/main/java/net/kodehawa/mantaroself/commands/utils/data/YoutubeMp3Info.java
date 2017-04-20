@@ -43,7 +43,7 @@ public class YoutubeMp3Info {
 
 		String link = "https://www.youtubeinmp3.com/fetch/?format=JSON&video=" + finalLink;
 
-		String s = Utils.wgetResty(link, null);
+		String s = Utils.wgetResty(link);
 
 		if (s == null) return null;
 

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import static br.com.brjdevs.java.utils.extensions.CollectionUtils.random;
+import static net.kodehawa.mantaroself.MantaroSelf.prefix;
 import static net.kodehawa.mantaroself.utils.StringUtils.SPLIT_PATTERN;
 
 @Slf4j
@@ -278,13 +279,10 @@ public class OwnerCmd {
 			@Override
 			public MessageEmbed help(GuildMessageReceivedEvent event) {
 				return helpEmbed(event, "Owner command")
-					.setDescription("~>owner shutdown/forceshutdown: Shutdowns the bot\n" +
-						"~>owner restart/forcerestart: Restarts the bot.\n" +
-						"~>owner scheduleshutdown time <time>: Schedules a fixed amount of seconds the bot will wait to be shutted down.\n" +
-						"~>owner varadd <pat/hug/greeting/splash>: Adds a link or phrase to the specified list.\n" +
-						"~>owner eval <bsh/js/groovy/m/cw> <line of code>: Evals a specified code snippet.\n" +
-						"~>owner cw <info/eval>: Shows info or evals specified code in the Connection Watcher.\n" +
-						"~>owner premium add <id> <days>: Adds premium to the specified user for x days.")
+					.setDescription(prefix() + "owner shutdown/forceshutdown: Shutdowns the bot\n" +
+						prefix() + "owner restart/forcerestart: Restarts the bot.\n" +
+						prefix() + "owner varadd <pat/hug/greeting/splash>: Adds a link or phrase to the specified list.\n" +
+						prefix() + "owner eval <bsh/js/groovy> <line of code>: Evals a specified code snippet.\n")
 					.addField("Shush.", "If you aren't Adrian or Kode you shouldn't be looking at this, huh " + EmoteReference.EYES, false)
 					.build();
 			}

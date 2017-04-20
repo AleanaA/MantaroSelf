@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static br.com.brjdevs.java.utils.extensions.CollectionUtils.random;
+import static net.kodehawa.mantaroself.MantaroSelf.prefix;
 
 @RegisterCommand.Class
 @Slf4j
@@ -58,7 +59,7 @@ public class MiscCmds {
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "8ball")
 				.setDescription("Retrieves an answer from the magic 8Ball.\n"
-					+ "~>8ball <question>. Retrieves an answer from 8ball based on the question or sentence provided.")
+					+ prefix() + "8ball <question>. Retrieves an answer from 8ball based on the question or sentence provided.")
 				.build())
 			.build());
 	}
@@ -92,9 +93,9 @@ public class MiscCmds {
 			.help((thiz, event) -> thiz.helpEmbed(event, "Misc Commands")
 				.setDescription("Miscellaneous funny/useful commands.\n"
 					+ "Usage:\n"
-					+ "~>misc reverse <sentence>: Reverses any given sentence.\n"
-					+ "~>misc noble: Random Lost Pause quote.\n"
-					+ "~>misc rndcolor: Gives you a random hex color.\n"
+					+ prefix() + "misc reverse <sentence>: Reverses any given sentence.\n"
+					+ prefix() + "misc noble: Random Lost Pause quote.\n"
+					+ prefix() + "misc rndcolor: Gives you a random hex color.\n"
 					+ "Parameter explanation:\n"
 					+ "sentence: A sentence to reverse."
 					+ "@user: A user to mention.")

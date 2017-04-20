@@ -13,7 +13,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.kodehawa.mantaroself.MantaroInfo;
 import us.monoid.web.Resty;
 
 import java.io.IOException;
@@ -25,7 +25,6 @@ import java.net.URLEncoder;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -88,7 +87,7 @@ public class Utils {
 	public static String paste(String toSend) {
 		try {
 			String pasteToken = Unirest.post("https://hastebin.com/documents")
-				.header("User-Agent", "Mantaro")
+				.header("User-Agent", "MantaroSelf v" + MantaroInfo.VERSION)
 				.header("Content-Type", "text/plain")
 				.body(toSend)
 				.asJson()
@@ -97,8 +96,8 @@ public class Utils {
 				.getString("key");
 			return "https://hastebin.com/" + pasteToken;
 		} catch (UnirestException e) {
-			log.warn("Hastebin is being stupid, huh? Can't send or retrieve paste.", e);
-			return "Mantaro threw ``" + e.getClass().getSimpleName() + "``" + " while trying to upload paste, check logs";
+			log.warn("Error on Hastebin Paste:", e);
+			return null;
 		}
 	}
 
@@ -142,10 +141,9 @@ public class Utils {
 	 * Can retrieve text, JSON Objects, XML and probably more.
 	 *
 	 * @param url   The URL to get the object from.
-	 * @param event guild event
 	 * @return The object as a parsed UTF-8 string.
 	 */
-	public static String wget(String url, GuildMessageReceivedEvent event) {
+	public static String wget(String url) {
 		String webObject = null;
 		try {
 			URL ur1 = new URL(url);
@@ -155,9 +153,7 @@ public class Utils {
 			webObject = CharStreams.toString(new InputStreamReader(ism, Charsets.UTF_8));
 		} catch (Exception e) {
 			if (e instanceof java.io.FileNotFoundException) return null;
-
 			log.warn(getFetchDataFailureResponse(url, null), e);
-			event.getChannel().sendMessage("\u274C I got an error while retrieving data from " + url).queue();
 		}
 
 		return webObject;
@@ -167,17 +163,15 @@ public class Utils {
 	 * Same than above, but using resty. Way easier tbh.
 	 *
 	 * @param url   The URL to get the object from.
-	 * @param event JDA message event.
 	 * @return The object as a parsed string.
 	 */
-	public static String wgetResty(String url, GuildMessageReceivedEvent event) {
+	public static String wgetResty(String url) {
 		String url2 = null;
 		Resty resty = new Resty().identifyAsMozilla();
 		try {
 			url2 = resty.text(url).toString();
 		} catch (IOException e) {
 			log.warn(getFetchDataFailureResponse(url, "Resty"), e);
-			Optional.ofNullable(event).ifPresent((evt) -> evt.getChannel().sendMessage("\u274C Error retrieving data from URL [Resty]").queue());
 		}
 
 		return url2;

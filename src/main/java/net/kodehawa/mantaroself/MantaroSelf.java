@@ -78,10 +78,14 @@ public class MantaroSelf implements JDA {
 		try {
 			instance = new MantaroSelf();
 		} catch (Exception e) {
-			log.error("Could not complete Main Thread routine!", e);
-			log.error("Cannot continue! Exiting program...");
+			log.error("Error on Initialization: ", e);
+			log.error("Exiting...");
 			System.exit(-1);
 		}
+	}
+
+	public static final String prefix() {
+		return config().get().prefix();
 	}
 
 	@Getter
@@ -90,16 +94,17 @@ public class MantaroSelf implements JDA {
 
 	private MantaroSelf() throws Exception {
 		SimpleLogToSLF4JAdapter.install();
-		log.info("MantaroSelf starting...");
+		log.info("Starting a Mantaro-based Selfbot...");
 
 		Config config = MantaroData.config().get();
+		config.ensureNonNull();
 		Future<Set<Class<?>>> classesAsync = Async.future(() -> new Reflections("net.kodehawa.mantaroself.commands").getTypesAnnotatedWith(RegisterCommand.Class.class));
-		Async.thread("CleverBot Builder", () -> CLEVERBOT = new JCABuilder().setUser(config.cleverbotUser).setKey(config.cleverbotKey).buildBlocking());
+		Async.thread("CleverBot Builder", () -> CLEVERBOT = new JCABuilder().setUser(config.cleverbotUser()).setKey(config.cleverbotKey()).buildBlocking());
 
 		status = LOADING;
 		jda = new JDABuilder(AccountType.CLIENT)
 			.setAudioEnabled(false)
-			.setToken(config().get().token)
+			.setToken(config().get().token())
 			.setEventManager(new MantaroEventManager())
 			.addEventListener(new CommandListener(), InteractiveOperations.listener())
 			.setAutoReconnect(true)
@@ -108,7 +113,7 @@ public class MantaroSelf implements JDA {
 
 		status = LOADED;
 		log.info("[-=-=-=-=-=- SELFBOT STARTED -=-=-=-=-=-]");
-		log.info("Started selfbot " + VERSION + " on JDA " + JDAInfo.VERSION);
+		log.info("Started selfbot v" + VERSION + " on JDA " + JDAInfo.VERSION + " for user " + jda.getSelfUser().getName() + "#" + jda.getSelfUser().getDiscriminator());
 
 		MantaroData.config().save();
 
@@ -116,30 +121,37 @@ public class MantaroSelf implements JDA {
 		for (Class<?> c : classesAsync.get()) {
 			try {
 				Object instance = null;
+
 				if (HasPostLoad.class.isAssignableFrom(c)) {
 					instance = c.newInstance();
 					modules.add((HasPostLoad) instance);
 				}
+
 				for (Method m : c.getMethods()) {
 					if (m.getAnnotation(RegisterCommand.class) == null) continue;
+
 					if (!Modifier.isStatic(m.getModifiers()) && instance == null) {
 						instance = c.newInstance();
 					}
+
 					Class<?>[] params = m.getParameterTypes();
+
 					if (params.length != 1 || params[0] != CommandRegistry.class) {
 						throw new IllegalArgumentException("Invalid method: " + m);
 					}
+
 					m.invoke(instance, CommandProcessor.REGISTRY);
 				}
 			} catch (InstantiationException e) {
-				log.error("Cannot initialize a command", e);
+				log.error("[Developer Error] Could not initialize a command", e);
 			} catch (IllegalAccessException e) {
-				log.error("Cannot access a command class!", e);
+				log.error("[Developer Error] Could not access a command class!", e);
 			}
 		}
 
 		status = POSTLOAD;
-		log.info("Finished loading basic components. Status is now set to POSTLOAD");
+		log.info("Finished loading basic components. Doing final loading...");
+
 		modules.forEach(HasPostLoad::onPostLoad);
 
 		log.info("Loaded " + CommandProcessor.REGISTRY.commands().size() + " commands.");

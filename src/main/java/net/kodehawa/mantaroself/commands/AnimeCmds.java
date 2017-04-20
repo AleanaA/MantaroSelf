@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.net.URLEncoder;
 import java.util.stream.Collectors;
 
+import static net.kodehawa.mantaroself.MantaroSelf.prefix;
 import static net.kodehawa.mantaroself.data.MantaroData.config;
 
 @Slf4j
@@ -81,8 +82,8 @@ public class AnimeCmds implements HasPostLoad {
 
 	@RegisterCommand
 	public static void registerCommands(CommandRegistry cr) {
-		if (config().get().alsecret == null) {
-			log.info("AniList Secret not defined. Anime Commands will not load.");
+		if (config().get().aniListClient() == null || config().get().aniListSecret() == null) {
+			log.info("AniList Client/Secret not defined. Anime Commands will not load.");
 			return;
 		}
 
@@ -91,7 +92,7 @@ public class AnimeCmds implements HasPostLoad {
 			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
 				try {
 					String connection = String.format("https://anilist.co/api/anime/search/%1s?access_token=%2s", URLEncoder.encode(content, "UTF-8"), authToken);
-					String json = Utils.wget(connection, event);
+					String json = Utils.wget(connection);
 					AnimeData[] type = GsonDataManager.GSON_PRETTY.fromJson(json, AnimeData[].class);
 
 					if (type.length == 1) {
@@ -120,9 +121,9 @@ public class AnimeCmds implements HasPostLoad {
 			@Override
 			public MessageEmbed help(GuildMessageReceivedEvent event) {
 				return helpEmbed(event, "Anime command")
-					.setDescription("Retrieves anime info from **AniList** (For anime characters use ~>character).\n"
+					.setDescription("Retrieves anime info from **AniList** (For anime characters use " + prefix() + "character).\n"
 						+ "Usage: \n"
-						+ "~>anime <animename>: Gets information of an anime based on parameters.\n"
+						+ prefix() + "anime <animename>: Gets information of an anime based on parameters.\n"
 						+ "Parameter description:\n"
 						+ "animename: The name of the anime you are looking for. Make sure to write it similar to the original english name.\n")
 					.setColor(Color.PINK)
@@ -136,7 +137,7 @@ public class AnimeCmds implements HasPostLoad {
 			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
 				try {
 					String url = String.format("https://anilist.co/api/character/search/%1s?access_token=%2s", URLEncoder.encode(content, "UTF-8"), authToken);
-					String json = Utils.wget(url, event);
+					String json = Utils.wget(url);
 					CharacterData[] character = GsonDataManager.GSON_PRETTY.fromJson(json, CharacterData[].class);
 
 					if (character.length == 1) {
@@ -163,7 +164,7 @@ public class AnimeCmds implements HasPostLoad {
 				return helpEmbed(event, "Character command")
 					.setDescription("Retrieves character info from **AniList**.\n"
 						+ "Usage: \n"
-						+ "~>character <charname>: Gets information of a character based on parameters.\n"
+						+ prefix() + "character <charname>: Gets information of a character based on parameters.\n"
 						+ "Parameter description:\n"
 						+ "character: The name of the character you are looking info of. Make sure to write the exact character name or close to it.\n")
 					.setColor(Color.DARK_GRAY)
@@ -172,7 +173,7 @@ public class AnimeCmds implements HasPostLoad {
 		});
 	}
 
-	private final String CLIENT_SECRET = config().get().alsecret;
+	private final String CLIENT = config().get().aniListClient(), SECRET = config().get().aniListSecret();
 
 	@Override
 	public void onPostLoad() {
@@ -184,18 +185,17 @@ public class AnimeCmds implements HasPostLoad {
 	 */
 	public void authenticate() {
 		String aniList = "https://anilist.co/api/auth/access_token";
-		String CLIENT_ID = "kodehawa-o43eq";
 		try {
 			authToken = Unirest.post(aniList)
 				.header("User-Agent", "Mantaro")
 				.header("Content-Type", "application/x-www-form-urlencoded")
-				.body("grant_type=client_credentials&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET)
+				.body("grant_type=client_credentials&client_id=" + CLIENT + "&client_secret=" + SECRET)
 				.asJson()
 				.getBody()
 				.getObject().getString("access_token");
 			log.info("Updated auth token.");
 		} catch (Exception e) {
-			log.warn("Problem while updating auth token! Check it out", e);
+			log.warn("Problem while updating auth token:", e);
 		}
 	}
 }

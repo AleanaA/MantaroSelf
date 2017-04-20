@@ -11,7 +11,7 @@ import java.util.WeakHashMap;
  * @author sedmelluq
  */
 public class SimpleLogToSLF4JAdapter implements SimpleLog.LogListener {
-	private static final Map<SimpleLog, Logger> logS = new WeakHashMap<>();
+	private static final Map<SimpleLog, Logger> LOGGERS = new WeakHashMap<>();
 
 	public static void install() {
 		SimpleLog.addListener(new SimpleLogToSLF4JAdapter());
@@ -50,6 +50,6 @@ public class SimpleLogToSLF4JAdapter implements SimpleLog.LogListener {
 	}
 
 	private Logger convert(SimpleLog log) {
-		return logS.computeIfAbsent(log, ignored -> LoggerFactory.getLogger(log.name));
+		return LOGGERS.computeIfAbsent(log, ignored -> LoggerFactory.getLogger(log.name));
 	}
 }

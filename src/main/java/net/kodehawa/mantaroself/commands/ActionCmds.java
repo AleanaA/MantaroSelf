@@ -19,6 +19,8 @@ import java.awt.Color;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static net.kodehawa.mantaroself.MantaroSelf.prefix;
+
 @RegisterCommand.Class
 public class ActionCmds {
 	public static final DataManager<List<String>> BLEACH = new SimpleFileDataManager("assets/mantaro/texts/bleach.txt");
@@ -50,9 +52,9 @@ public class ActionCmds {
 			})
 			.help((thiz, event) ->
 				thiz.helpEmbed(event, "Action commands")
-					.addField("Description:", "~>action bleach: Random image of someone drinking bleach.\n" +
-						"~>action facedesk: Facedesks.\n" +
-						"~>action nom: nom nom.", false)
+					.addField("Description:", prefix() + "action bleach: Random image of someone drinking bleach.\n" +
+						prefix() + "action facedesk: Facedesks.\n" +
+						prefix() + "action nom: nom nom.", false)
 					.setColor(Color.PINK)
 					.build()
 			)

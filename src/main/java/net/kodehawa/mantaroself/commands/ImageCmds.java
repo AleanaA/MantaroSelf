@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import static net.kodehawa.mantaroself.MantaroSelf.prefix;
+
 @RegisterCommand.Class
 public class ImageCmds implements HasPostLoad {
 
@@ -99,7 +101,7 @@ public class ImageCmds implements HasPostLoad {
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "Catgirl command")
 				.setDescription("Sends catgirl images")
-				.addField("Usage", "`~>catgirl`\n´~>catgirl nsfw´", false)
+				.addField("Usage", "`" + prefix() + "catgirl`\n´" + prefix() + "catgirl nsfw´", false)
 				.build())
 			.build());
 	}
@@ -142,7 +144,7 @@ public class ImageCmds implements HasPostLoad {
 
 						} catch (Exception exception) {
 							if (exception instanceof NumberFormatException)
-								event.getChannel().sendMessage(EmoteReference.ERROR + "Wrong argument type. Check ~>help e621").queue();
+								event.getChannel().sendMessage(EmoteReference.ERROR + "Wrong argument type. Check " + prefix() + "help e621").queue();
 						}
 						break;
 
@@ -154,7 +156,7 @@ public class ImageCmds implements HasPostLoad {
 
 							boolean isOldFormat = args[1].matches("^[0-9]*$");
 							if (isOldFormat) {
-								event.getChannel().sendMessage(EmoteReference.WARNING + "Now you don't need to specify the page number. Please use ~>e621 tags <tag>").queue();
+								event.getChannel().sendMessage(EmoteReference.WARNING + "Now you don't need to specify the page number. Please use " + prefix() + "e621 tags <tag>").queue();
 								return;
 							}
 							e621.onSearch(r.nextInt(50), 60, tags, images -> {
@@ -182,7 +184,7 @@ public class ImageCmds implements HasPostLoad {
 							});
 						} catch (Exception exception) {
 							if (exception instanceof NumberFormatException)
-								event.getChannel().sendMessage(EmoteReference.ERROR + "Wrong argument type. Check ~>help e621").queue();
+								event.getChannel().sendMessage(EmoteReference.ERROR + "Wrong argument type. Check " + prefix() + "help e621").queue();
 						}
 						break;
 					default:
@@ -193,8 +195,8 @@ public class ImageCmds implements HasPostLoad {
 			.help((thiz, event) -> thiz.helpEmbed(event, "e621 commmand")
 				.setColor(Color.PINK)
 				.setDescription("Retrieves images from the **e621** (furry) image board.")
-				.addField("Usage", "~>e621 get <page> <imagenumber>: Gets an image based in parameters.\n"
-					+ "~>e621 tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
+				.addField("Usage", prefix() + "e621 get <page> <imagenumber>: Gets an image based in parameters.\n"
+					+ prefix() + "e621 tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
 				.addField("Parameters", "page: Can be any value from 1 to the e621 maximum page. Probably around 4000.\n"
 					+ "imagenumber: (OPTIONAL) Any number from 1 to the maximum possible images to get, specified by the first instance of the command.\n"
 					+ "tag: Any valid image tag. For example animal_ears or original.", false)
@@ -205,7 +207,7 @@ public class ImageCmds implements HasPostLoad {
 	private static EmbedBuilder getImage(int argsCount, String requestType, String url, String rating, String[] messageArray, GuildMessageReceivedEvent event) {
 		EmbedBuilder builder = new EmbedBuilder();
 
-		String json = Utils.wget(url, event);
+		String json = Utils.wget(url);
 		try {
 			ImageData[] imageData = GsonDataManager.GSON_PRETTY.fromJson(json, ImageData[].class);
 			List<ImageData> filter = new ArrayList<>(Arrays.asList(imageData)).stream().filter(data -> rating.equals(data.rating)).collect(Collectors.toList());
@@ -284,7 +286,7 @@ public class ImageCmds implements HasPostLoad {
 							channel.sendMessage(builder.build()).queue();
 						} catch (Exception exception) {
 							if (exception instanceof NumberFormatException)
-								channel.sendMessage(EmoteReference.ERROR + "Wrong argument type. Check ~>help konachan").queue();
+								channel.sendMessage(EmoteReference.ERROR + "Wrong argument type. Check " + prefix() + "help konachan").queue();
 							if (exception instanceof IndexOutOfBoundsException)
 								channel.sendMessage(EmoteReference.ERROR + "There aren't more images! Try with a lower number.").queue();
 						}
@@ -293,7 +295,7 @@ public class ImageCmds implements HasPostLoad {
 						try {
 							boolean isOldFormat = args[1].matches("^[0-9]*$");
 							if (isOldFormat) {
-								event.getChannel().sendMessage(EmoteReference.WARNING + "Now you don't need to specify the page number. Please use ~>konachan tags <tag>").queue();
+								event.getChannel().sendMessage(EmoteReference.WARNING + "Now you don't need to specify the page number. Please use " + prefix() + "konachan tags <tag>").queue();
 								return;
 							}
 
@@ -328,7 +330,7 @@ public class ImageCmds implements HasPostLoad {
 							}
 
 							if (exception instanceof NumberFormatException)
-								channel.sendMessage(EmoteReference.ERROR + "Wrong argument type. Check ~>help konachan").queue();
+								channel.sendMessage(EmoteReference.ERROR + "Wrong argument type. Check " + prefix() + "help konachan").queue();
 						}
 						break;
 					default:
@@ -339,8 +341,8 @@ public class ImageCmds implements HasPostLoad {
 			.help((thiz, event) -> thiz.helpEmbed(event, "Konachan commmand")
 				.setColor(Color.PINK)
 				.setDescription("Retrieves images from the **Konachan** image board.")
-				.addField("Usage", "~>konachan get <page> <imagenumber>: Gets an image based in parameters.\n"
-					+ "~>konachan tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
+				.addField("Usage", prefix() + "konachan get <page> <imagenumber>: Gets an image based in parameters.\n"
+					+ prefix() + "konachan tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
 				.addField("Parameters", "page: Can be any value from 1 to the Konachan maximum page. Probably around 4000.\n"
 					+ "imagenumber: (OPTIONAL) Any number from 1 to the maximum possible images to get, specified by the first instance of the command.\n"
 					+ "tag: Any valid image tag. For example animal_ears or original.", false)
@@ -386,7 +388,7 @@ public class ImageCmds implements HasPostLoad {
 
 						} catch (Exception exception) {
 							if (exception instanceof NumberFormatException)
-								event.getChannel().sendMessage(EmoteReference.ERROR + "Wrong argument type. Check ~>help e621").queue();
+								event.getChannel().sendMessage(EmoteReference.ERROR + "Wrong argument type. Check " + prefix() + "help e621").queue();
 						}
 						break;
 					case "tags":
@@ -394,7 +396,7 @@ public class ImageCmds implements HasPostLoad {
 							try {
 								boolean isOldFormat = args[1].matches("^[0-9]*$");
 								if (isOldFormat) {
-									event.getChannel().sendMessage(EmoteReference.WARNING + "Now you don't need to specify the page number. Please use ~>rule34 tags <tag>").queue();
+									event.getChannel().sendMessage(EmoteReference.WARNING + "Now you don't need to specify the page number. Please use " + prefix() + "rule34 tags <tag>").queue();
 									return;
 								}
 
@@ -429,7 +431,7 @@ public class ImageCmds implements HasPostLoad {
 								});
 							} catch (Exception exception) {
 								if (exception instanceof NumberFormatException)
-									event.getChannel().sendMessage(EmoteReference.ERROR + "Wrong argument type. Check ~>help rule34").queue();
+									event.getChannel().sendMessage(EmoteReference.ERROR + "Wrong argument type. Check " + prefix() + "help rule34").queue();
 							}
 						} catch (NullPointerException e) {
 							event.getChannel().sendMessage(EmoteReference.ERROR + "Rule34 decided to not fetch the image. Well, you can try with another number or tag.").queue();
@@ -443,8 +445,8 @@ public class ImageCmds implements HasPostLoad {
 			.help((thiz, event) -> thiz.helpEmbed(event, "rule34.xxx commmand")
 				.setColor(Color.PINK)
 				.setDescription("Retrieves images from the **rule34** (hentai) image board.")
-				.addField("Usage", "~>rule34 get <imagenumber>: Gets an image based in parameters.\n"
-					+ "~>rule34 tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
+				.addField("Usage", prefix() + "rule34 get <imagenumber>: Gets an image based in parameters.\n"
+					+ prefix() + "rule34 tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
 				.addField("Parameters", "page: Can be any value from 1 to the rule34 maximum page. Probably around 4000.\n"
 					+ "imagenumber: (OPTIONAL) Any number from 1 to the maximum possible images to get, specified by the first instance of the command.\n"
 					+ "tag: Any valid image tag. For example animal_ears or original.", false)
@@ -485,7 +487,7 @@ public class ImageCmds implements HasPostLoad {
 					case "tags":
 						boolean isOldFormat = args[1].matches("^[0-9]*$");
 						if (isOldFormat) {
-							event.getChannel().sendMessage(EmoteReference.WARNING + "Now you don't need to specify the page number. Please use ~>yandere tags <tag>").queue();
+							event.getChannel().sendMessage(EmoteReference.WARNING + "Now you don't need to specify the page number. Please use " + prefix() + "yandere tags <tag>").queue();
 							return;
 						}
 
@@ -506,9 +508,9 @@ public class ImageCmds implements HasPostLoad {
 				.setColor(Color.DARK_GRAY)
 				.setDescription("This command fetches images from the image board **yande.re**. Normally used to store *NSFW* images, "
 					+ "but tags can be set to safe if you so desire.\n"
-					+ "~>yandere: Gets you a completely random image.\n"
-					+ "~>yandere get <imagenumber> <rating>: Gets you an image with the specified parameters.\n"
-					+ "~>yandere tags <tag> <rating> <imagenumber>: Gets you an image with the respective tag and specified parameters.\n"
+					+ prefix() + "yandere: Gets you a completely random image.\n"
+					+ prefix() + "yandere get <imagenumber> <rating>: Gets you an image with the specified parameters.\n"
+					+ prefix() + "yandere tags <tag> <rating> <imagenumber>: Gets you an image with the respective tag and specified parameters.\n"
 					+ "This command can be only used in NSFW channels! (Unless rating has been specified as safe)\n"
 					+ "> Parameter explanation:\n"
 					+ "imagenumber: (OPTIONAL) Any number from 1 to the maximum possible images to get, specified by the first instance of the command.\n"

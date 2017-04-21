@@ -137,6 +137,8 @@ public class FunCmds {
 							} catch (InterruptedException ignored) {
 							}
 						}));
+
+						return;
 					}
 				}
 

@@ -17,6 +17,8 @@ public class Cleverbot {
 	public static final Map<Predicate<String>, Consumer<GuildMessageReceivedEvent>> OVERRIDES = new MapObject<>();
 
 	public static void handle(GuildMessageReceivedEvent event) {
+		if (MantaroSelf.CLEVERBOT == null) return;
+
 		String input = splitArgs(event.getMessage().getStrippedContent(), 2)[1];
 
 		for (Entry<Predicate<String>, Consumer<GuildMessageReceivedEvent>> override : OVERRIDES.entrySet()) {
@@ -27,7 +29,6 @@ public class Cleverbot {
 		}
 
 		try {
-			if (MantaroSelf.CLEVERBOT == null) throw new UnsupportedOperationException("exploiting a try-catch");
 
 			event.getChannel().sendMessage(MantaroSelf.CLEVERBOT.getResponse(input)).queue();
 		} catch (Exception e) {

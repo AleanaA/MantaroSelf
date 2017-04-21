@@ -51,7 +51,7 @@ dependencies {
 	compile 'us.monoid.web:resty:0.3.2'
 	compile group: 'org.jsoup', name: 'jsoup', version: '1.8.3'
 
-	compile 'br.com.brjdevs:utils:1.0.0_4'
+	compile 'br.com.brjdevs:utils:1.0.0_8'
 
 	compile 'com.google.guava:guava:19.0'
 	compile 'com.google.code.gson:gson:2.8.0'

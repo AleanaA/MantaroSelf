@@ -148,7 +148,7 @@ public class Utils {
 		try {
 			URL ur1 = new URL(url);
 			HttpURLConnection conn = (HttpURLConnection) ur1.openConnection();
-			conn.setRequestProperty("User-Agent", "Mantaro");
+			conn.setRequestProperty("User-Agent", "MantaroSelf v" + MantaroInfo.VERSION);
 			InputStream ism = conn.getInputStream();
 			webObject = CharStreams.toString(new InputStreamReader(ism, Charsets.UTF_8));
 		} catch (Exception e) {

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.kodehawa.mantaroself.MantaroInfo;
 import net.kodehawa.mantaroself.commands.utils.data.AnimeData;
 import net.kodehawa.mantaroself.commands.utils.data.CharacterData;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
@@ -177,6 +178,7 @@ public class AnimeCmds implements HasPostLoad {
 
 	@Override
 	public void onPostLoad() {
+		if (config().get().aniListClient() == null || config().get().aniListSecret() == null) return;
 		Async.task("AniList Login Task", this::authenticate, 1900);
 	}
 
@@ -187,7 +189,7 @@ public class AnimeCmds implements HasPostLoad {
 		String aniList = "https://anilist.co/api/auth/access_token";
 		try {
 			authToken = Unirest.post(aniList)
-				.header("User-Agent", "Mantaro")
+				.header("User-Agent", "MantaroSelf v" + MantaroInfo.VERSION)
 				.header("Content-Type", "application/x-www-form-urlencoded")
 				.body("grant_type=client_credentials&client_id=" + CLIENT + "&client_secret=" + SECRET)
 				.asJson()

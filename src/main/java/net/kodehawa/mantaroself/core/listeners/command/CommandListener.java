@@ -29,7 +29,7 @@ public class CommandListener implements EventListener {
 
 	//Message cache of 2500 messages. If it reaches 2500 it will delete the first one stored, and continue being 2500
 	@Getter
-	private static final Cache<String, Optional<Message>> messageCache = CacheBuilder.newBuilder().concurrencyLevel(10).maximumSize(2500).build();
+	private static final Cache<String, Optional<Message>> MESSAGE_CACHE = CacheBuilder.newBuilder().concurrencyLevel(10).maximumSize(2500).build();
 	private static int commandTotal = 0;
 
 	public static void clearCustomProcessor(String channelId) {
@@ -56,9 +56,9 @@ public class CommandListener implements EventListener {
 	}
 
 	private void onCommand(GuildMessageReceivedEvent event) {
-		messageCache.put(event.getMessage().getId(), Optional.of(event.getMessage()));
+		MESSAGE_CACHE.put(event.getMessage().getId(), Optional.of(event.getMessage()));
 
-		if (!event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
+		if (!event.getJDA().getSelfUser().equals(event.getAuthor())) {
 			return;
 		}
 

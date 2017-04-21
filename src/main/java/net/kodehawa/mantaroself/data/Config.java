@@ -2,6 +2,8 @@ package net.kodehawa.mantaroself.data;
 
 /**
  * Yes, I'm well aware of how ugly this class is. I don't care. It works.
+ *
+ * @author AdrianTodt
  */
 public class Config {
 	public static class AniList {

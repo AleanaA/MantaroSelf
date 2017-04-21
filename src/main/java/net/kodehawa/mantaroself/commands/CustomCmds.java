@@ -249,8 +249,8 @@ public class CustomCmds implements HasPostLoad {
 						"Usage:",
 						"`" + prefix() + "custom`: Shows this help\n" +
 							"`" + prefix() + "custom <list|ls> [detailed]`: List all commands. If detailed is supplied, it prints the responses of each command.\n" +
-							"`" + prefix() + "custom debug`: Gives a Hastebin of the Raw Custom Commands Data. **(OWNER-ONLY)**\n" +
-							"`" + prefix() + "custom clear`: Remove all Custom Commands from this Guild. **(OWNER-ONLY)**\n" +
+							"`" + prefix() + "custom debug`: Gives a Hastebin of the Raw Custom Commands Data. **(SELF-ONLY)**\n" +
+							"`" + prefix() + "custom clear`: Remove all Custom Commands from this Guild. **(SELF-ONLY)**\n" +
 							"`" + prefix() + "custom add <name> <responses>`: Add a new Command with the response provided. (A list of modifiers can be found on [here](https://hastebin.com/xolijewitu.http)\n" +
 							"`" + prefix() + "custom make <name>`: Starts a Interactive Operation to create a command with the specified name.\n" +
 							"`" + prefix() + "custom <remove|rm> <name>`: Removes a command with an specific name.\n" +

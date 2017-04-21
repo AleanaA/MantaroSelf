@@ -23,12 +23,12 @@ import static net.kodehawa.mantaroself.MantaroSelf.prefix;
 
 @RegisterCommand.Class
 public class ActionCmds {
-	public static final DataManager<List<String>> BLEACH = new SimpleFileDataManager("assets/mantaro/texts/bleach.txt");
-	public static final DataManager<List<String>> GREETINGS = new SimpleFileDataManager("assets/mantaro/texts/greetings.txt");
-	public static final DataManager<List<String>> HUGS = new SimpleFileDataManager("assets/mantaro/texts/hugs.txt");
-	public static final DataManager<List<String>> KISSES = new SimpleFileDataManager("assets/mantaro/texts/kisses.txt");
-	public static final DataManager<List<String>> PATS = new SimpleFileDataManager("assets/mantaro/texts/pats.txt");
-	public static final DataManager<List<String>> TSUNDERE = new SimpleFileDataManager("assets/mantaro/texts/tsundere.txt");
+	public static final DataManager<List<String>> BLEACH = new SimpleFileDataManager("assets/mantaroself/gifs/bleach.txt");
+	public static final DataManager<List<String>> GREETINGS = new SimpleFileDataManager("assets/mantaroself/texts/greetings.txt");
+	public static final DataManager<List<String>> HUGS = new SimpleFileDataManager("assets/mantaroself/gifs/hugs.txt");
+	public static final DataManager<List<String>> KISSES = new SimpleFileDataManager("assets/mantaroself/gifs/kisses.txt");
+	public static final DataManager<List<String>> PATS = new SimpleFileDataManager("assets/mantaroself/gifs/pats.txt");
+	public static final DataManager<List<String>> TSUNDERE = new SimpleFileDataManager("assets/mantaroself/texts/tsundere.txt");
 
 	@RegisterCommand
 	public static void action(CommandRegistry cr) {

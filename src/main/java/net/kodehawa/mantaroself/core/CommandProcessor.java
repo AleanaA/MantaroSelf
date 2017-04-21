@@ -23,7 +23,9 @@ public class CommandProcessor {
 		String[] parts = splitArgs(rawCmd, 2);
 		String cmdName = parts[0], content = parts[1];
 
-		REGISTRY.process(event, cmdName, content);
+		if (REGISTRY.process(event, cmdName, content)) {
+			event.getMessage().delete().queue();
+		}
 		return true;
 	}
 }

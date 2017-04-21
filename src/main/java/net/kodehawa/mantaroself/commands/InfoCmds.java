@@ -36,6 +36,7 @@ import static net.kodehawa.mantaroself.commands.info.AsyncInfoMonitor.*;
 import static net.kodehawa.mantaroself.commands.info.HelpUtils.forType;
 import static net.kodehawa.mantaroself.commands.info.StatsHelper.calculateDouble;
 import static net.kodehawa.mantaroself.commands.info.StatsHelper.calculateInt;
+import static net.kodehawa.mantaroself.data.MantaroData.data;
 
 @RegisterCommand.Class
 public class InfoCmds implements HasPostLoad {
@@ -60,28 +61,34 @@ public class InfoCmds implements HasPostLoad {
 //				}
 
 				List<Guild> guilds = MantaroSelf.getInstance().getGuilds();
-				List<TextChannel> textChannels = MantaroSelf.getInstance().getTextChannels();
-				List<VoiceChannel> voiceChannels = MantaroSelf.getInstance().getVoiceChannels();
+				int guildCount = guilds.size();
+				int usersCount = MantaroSelf.getInstance().getUsers().size();
+				long onlineCount = guilds.stream()
+					.flatMap(guild -> guild.getMembers().stream())
+					.filter(user -> !user.getOnlineStatus().equals(OnlineStatus.OFFLINE))
+					.map(member -> member.getUser().getId())
+					.distinct()
+					.count();
+				int tcCount = MantaroSelf.getInstance().getTextChannels().size();
+				int vcCount = MantaroSelf.getInstance().getVoiceChannels().size();
 				long millis = ManagementFactory.getRuntimeMXBean().getUptime();
 				long seconds = millis / 1000;
 				long minutes = seconds / 60;
 				long hours = minutes / 60;
 				long days = hours / 24;
 
-				event.getChannel().sendMessage(thiz.baseEmbed(event, "About this Selfbot")
-					.setDescription("Hello, I'm a Mantaro-based Selfbot. Hello!")
-					.addField("MantaroSelf Version", MantaroInfo.VERSION, false)
-					.addField("Uptime", String.format(
-						"%d days, %02d hrs, %02d min",
-						days, hours % 24, minutes % 60
-					), false)
-					.addField("Threads", String.valueOf(Thread.activeCount()), true)
-					.addField("Servers", String.valueOf(guilds.size()), true)
-					.addField("Users (Online/Unique)", guilds.stream().flatMap
-						(g -> g.getMembers().stream()).filter(u -> !u.getOnlineStatus().equals(OnlineStatus.OFFLINE)).distinct().count() + "/" +
-						guilds.stream().flatMap(guild -> guild.getMembers().stream()).map(user -> user.getUser().getId()).distinct().count(), true)
-					.addField("Text Channels", String.valueOf(textChannels.size()), true)
-					.addField("Voice Channels", String.valueOf(voiceChannels.size()), true)
+				event.getChannel().sendMessage(thiz.baseEmbed(event, data().get().botInfo.aboutTitle)
+					.setDescription(data().get().botInfo.aboutDescription)
+					.addField(
+						"Information:",
+						"**Selfbot Version**: " + MantaroInfo.VERSION + "\n" +
+							"**Uptime**: " + String.format("%d:%02d:%02d:%02d", days, hours % 24, minutes % 60, seconds % 60) + "\n" +
+							"**Threads**: " + Thread.activeCount() + "\n" +
+							"**Servers**: " + guildCount + "\n" +
+							"**Users (Online/Known)**: " + onlineCount + "/" + usersCount + "\n" +
+							"**Text/Voice Channels**: " + tcCount + "/" + vcCount + "\n",
+						false
+					)
 					.setFooter(String.format("Invite link: http://polr.me/mantaro (Commands this session: %s)", CommandListener.getCommandTotal()), event.getJDA().getSelfUser().getAvatarUrl())
 					.build()
 				).queue();
@@ -170,7 +177,7 @@ public class InfoCmds implements HasPostLoad {
 				if (content.isEmpty()) {
 					String prefix = MantaroData.config().get().prefix();
 
-					EmbedBuilder embed = thiz.baseEmbed(event, "MantaroBot Help")
+					EmbedBuilder embed = thiz.baseEmbed(event, "Commands:")
 						.setColor(Color.PINK)
 						.setDescription("Command help. For extended usage please use " + String.format("%shelp <command>.", prefix))
 						.setFooter(String.format("To check command usage, type %shelp <command> // -> Commands: " +
@@ -215,14 +222,13 @@ public class InfoCmds implements HasPostLoad {
 				List<Guild> guilds = MantaroSelf.getInstance().getGuilds();
 
 				event.getChannel().sendMessage("```prolog\n"
-					+ "---MantaroBot Technical Information---\n\n"
+					+ "---Selfbot Technical Information---\n\n"
 					+ "Commands: " + CommandProcessor.REGISTRY.commands().entrySet().stream().filter((command) -> !command.getValue().hidden()).count() + "\n"
 					+ "Bot Version: " + MantaroInfo.VERSION + "\n"
 					+ "JDA Version: " + JDAInfo.VERSION + "\n"
 					+ "API Responses: " + MantaroSelf.getInstance().getResponseTotal() + "\n"
 					+ "CPU Usage: " + getVpsCPUUsage() + "%" + "\n"
 					+ "CPU Cores: " + getAvailableProcessors() + "\n"
-					+ "Shard Info: " + event.getJDA().getShardInfo()
 					+ "\n\n ------------------ \n\n"
 					+ "Guilds: " + guilds.size() + "\n"
 					+ "Users: " + guilds.stream().flatMap(guild -> guild.getMembers().stream()).map(user -> user.getUser().getId()).distinct().count() + "\n"

@@ -245,7 +245,7 @@ public class UtilsCmds {
 	@RegisterCommand
 	public static void weather(CommandRegistry cr) {
 		if (config().get().weatherAppId() == null) {
-			log.info("OpenWeatherMap AppId not defined. Anime Commands will not load.");
+			log.info("OpenWeatherMap AppId not defined. Weather Command will not load.");
 			return;
 		}
 

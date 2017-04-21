@@ -1,11 +1,17 @@
 package net.kodehawa.mantaroself.commands;
 
+import br.com.brjdevs.java.utils.extensions.Async;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
 import net.kodehawa.mantaroself.modules.Commands;
 import net.kodehawa.mantaroself.modules.RegisterCommand;
 import net.kodehawa.mantaroself.modules.commands.Category;
+import net.kodehawa.mantaroself.modules.commands.SimpleCommandCompat;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 @RegisterCommand.Class
@@ -81,5 +87,73 @@ public class FunCmds {
 			num = num + roll;
 		}
 		return num;
+	}
+
+	@RegisterCommand
+	public static void troll(CommandRegistry registry) {
+		List<Thread> trollThreads = new ArrayList<>();
+
+		registry.register("troll", new SimpleCommandCompat(Category.FUN) {
+			@Override
+			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
+				if (args.length < 1) {
+					onHelp(event);
+					return;
+				}
+
+				String action = args[0];
+
+				if (action.equals("stop")) {
+					trollThreads.forEach(Thread::interrupt);
+					trollThreads.clear();
+					return;
+				}
+
+				if (action.equals("typing")) {
+					long _times = 1;
+					if (args.length > 1) {
+						try {
+							String parse = args[1];
+							if (parse.equals("forever")) {
+								_times = Long.MAX_VALUE;
+							} else if (parse.equals("once")) {
+								_times = 1;
+							} else if (parse.equals("twice")) {
+								_times = 2;
+							} else {
+								_times = Long.parseLong(parse);
+							}
+						} catch (Exception ignored) {
+						}
+
+						long times = _times;
+
+						trollThreads.add(Async.thread("Troll Thread (Typing@" + event.getChannel().getName() + ")", () -> {
+							try {
+								for (long i = 0; i < times; i++) {
+									event.getChannel().sendTyping().complete();
+									Thread.sleep(9000);
+								}
+							} catch (InterruptedException ignored) {
+							}
+						}));
+					}
+				}
+
+				if (args.length < 2) {
+					onHelp(event);
+					return;
+				}
+
+				String value = args[1];
+
+				onHelp(event);
+			}
+
+			@Override
+			public MessageEmbed help(GuildMessageReceivedEvent event) {
+				return helpEmbed(event, "Troll Command").build(); //TODO WIP
+			}
+		});
 	}
 }

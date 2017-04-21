@@ -8,12 +8,12 @@ public class MantaroData {
 	private static DataManager<Data> data;
 
 	public static DataManager<Config> config() {
-		if (config == null) config = new GsonDataManager<>(Config.class, "config.json", Config::new);
+		if (config == null) config = new GsonDataManager<>(Config.class, "config.json", Config::new, true);
 		return config;
 	}
 
 	public static DataManager<Data> data() {
-		if (data == null) data = new GsonDataManager<>(Data.class, "data.json", Data::new);
+		if (data == null) data = new GsonDataManager<>(Data.class, "data.json", Data::new, false);
 		return data;
 	}
 }

@@ -50,6 +50,8 @@ public class MantaroSelf implements JDA {
 	}
 
 	public static void main(String[] args) {
+		Thread.currentThread().setName("Main");
+
 		if (System.getProperty("mantaro.verbose", null) != null) {
 			System.setOut(new PrintStream(System.out) {
 				@Override
@@ -84,7 +86,7 @@ public class MantaroSelf implements JDA {
 		}
 	}
 
-	public static final String prefix() {
+	public static String prefix() {
 		return config().get().prefix();
 	}
 
@@ -98,8 +100,25 @@ public class MantaroSelf implements JDA {
 
 		Config config = MantaroData.config().get();
 		config.ensureNonNull();
-		Future<Set<Class<?>>> classesAsync = Async.future(() -> new Reflections("net.kodehawa.mantaroself.commands").getTypesAnnotatedWith(RegisterCommand.Class.class));
-		Async.thread("CleverBot Builder", () -> CLEVERBOT = new JCABuilder().setUser(config.cleverbotUser()).setKey(config.cleverbotKey()).buildBlocking());
+
+		Future<Set<Class<?>>> classes = Async.future(
+			"Classes Lookup",
+			() -> new Reflections("net.kodehawa.mantaroself.commands").getTypesAnnotatedWith(RegisterCommand.Class.class)
+		);
+
+		Async.thread(
+			"CleverBot Builder",
+			() -> {
+				if (config.cleverbotUser() == null || config.cleverbotKey() == null) {
+					log.info("Cleverbot User/Key not defined. Cleverbot will not load.");
+					return;
+				}
+
+				CLEVERBOT = new JCABuilder()
+					.setUser(config.cleverbotUser())
+					.setKey(config.cleverbotKey())
+					.buildBlocking();
+			});
 
 		status = LOADING;
 		jda = new JDABuilder(AccountType.CLIENT)
@@ -116,9 +135,11 @@ public class MantaroSelf implements JDA {
 		log.info("Started selfbot v" + VERSION + " on JDA " + JDAInfo.VERSION + " for user " + jda.getSelfUser().getName() + "#" + jda.getSelfUser().getDiscriminator());
 
 		MantaroData.config().save();
+		MantaroData.data().save();
 
 		Set<HasPostLoad> modules = new HashSet<>();
-		for (Class<?> c : classesAsync.get()) {
+
+		for (Class<?> c : classes.get()) {
 			try {
 				Object instance = null;
 
@@ -143,7 +164,7 @@ public class MantaroSelf implements JDA {
 					m.invoke(instance, CommandProcessor.REGISTRY);
 				}
 			} catch (InstantiationException e) {
-				log.error("[Developer Error] Could not initialize a command", e);
+				log.error("[Developer Error] Could not initialize a command.", e);
 			} catch (IllegalAccessException e) {
 				log.error("[Developer Error] Could not access a command class!", e);
 			}

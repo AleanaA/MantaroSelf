@@ -21,13 +21,13 @@ public class SimpleFileDataManager implements DataManager<List<String>> {
 	public SimpleFileDataManager(String file) {
 		this.path = Paths.get(file);
 		if (!this.path.toFile().exists()) {
-			log.info("Could not find config file at " + this.path.toFile().getAbsolutePath() + ", creating a new one...");
+			log.info("Could not find file at " + this.path.toFile().getAbsolutePath() + ", creating a new one...");
 			if (this.path.toFile().createNewFile()) {
-				log.info("Generated new config file at " + this.path.toFile().getAbsolutePath() + ".");
+				log.info("Generated new file at " + this.path.toFile().getAbsolutePath() + ".");
 				FileIOUtils.write(this.path, this.data.stream().collect(Collectors.joining()));
 				log.info("Please, fill the file with valid properties.");
 			} else {
-				log.warn("Could not create config file at " + file);
+				log.warn("Could not create file at " + file);
 			}
 		}
 

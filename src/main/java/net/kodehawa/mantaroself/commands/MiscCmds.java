@@ -23,8 +23,8 @@ import static net.kodehawa.mantaroself.MantaroSelf.prefix;
 @RegisterCommand.Class
 @Slf4j
 public class MiscCmds {
-	public static final DataManager<List<String>> facts = new SimpleFileDataManager("assets/mantaro/texts/facts.txt");
-	public static final DataManager<List<String>> noble = new SimpleFileDataManager("assets/mantaro/texts/noble.txt");
+	public static final DataManager<List<String>> facts = new SimpleFileDataManager("assets/mantaroself/texts/facts.txt");
+	public static final DataManager<List<String>> noble = new SimpleFileDataManager("assets/mantaroself/texts/noble.txt");
 	private static final String[] HEX_LETTERS = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
 
 	@RegisterCommand

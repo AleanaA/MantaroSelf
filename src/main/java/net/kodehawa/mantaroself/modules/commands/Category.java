@@ -4,7 +4,7 @@ public enum Category {
 	ACTION("Action"),
 	IMAGE("Image"),
 	FUN("Fun"),
-	OWNER("Owner"),
+	SELF("Self"),
 	INFO("Info"),
 	UTILS("Utility"),
 	MISC("Misc");

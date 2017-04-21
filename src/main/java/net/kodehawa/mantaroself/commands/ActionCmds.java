@@ -15,7 +15,6 @@ import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 import net.kodehawa.mantaroself.utils.data.DataManager;
 import net.kodehawa.mantaroself.utils.data.SimpleFileDataManager;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,7 +54,6 @@ public class ActionCmds {
 					.addField("Description:", prefix() + "action bleach: Random image of someone drinking bleach.\n" +
 						prefix() + "action facedesk: Facedesks.\n" +
 						prefix() + "action nom: nom nom.", false)
-					.setColor(Color.PINK)
 					.build()
 			)
 			.build());
@@ -115,7 +113,6 @@ public class ActionCmds {
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "Meow command")
 				.setDescription("Meows at a user or just meows.")
-				.setColor(Color.cyan)
 				.build())
 			.build());
 	}
@@ -125,30 +122,30 @@ public class ActionCmds {
 
 		//pat();
 		cr.register("pat", new ImageActionCmd(
-			"Pat", "Pats the specified user.", Color.PINK,
+			"Pat", "Pats the specified user.",
 			"pat.gif", EmoteReference.TALKING + "%s you have been patted by %s", PATS.get()));
 
 		//hug();
 		cr.register("hug", new ImageActionCmd(
-			"Hug", "Hugs the specified user.", Color.PINK,
+			"Hug", "Hugs the specified user.",
 			"hug.gif", EmoteReference.TALKING + "%s you have been hugged by %s", HUGS.get()
 		));
 
 		//kiss();
 		cr.register("kiss", new ImageActionCmd(
-			"Kiss", "Kisses the specified user.", Color.PINK,
+			"Kiss", "Kisses the specified user.",
 			"kiss.gif", EmoteReference.TALKING + "%s you have been kissed by %s", KISSES.get()
 		));
 
 		//greet();
 		cr.register("greet", new TextActionCmd(
-			"Greet", "Sends a random greeting", Color.DARK_GRAY,
+			"Greet", "Sends a random greeting",
 			EmoteReference.TALKING + "%s", GREETINGS.get()
 		));
 
 		//tsundere();
 		cr.register("tsundere", new TextActionCmd(
-			"Tsundere Command", "Y-You baka!", Color.PINK,
+			"Tsundere Command", "Y-You baka!",
 			EmoteReference.MEGA + "%s", TSUNDERE.get()
 		));
 

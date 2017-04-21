@@ -10,7 +10,6 @@ import net.kodehawa.mantaroself.modules.commands.NoArgsCommand;
 import net.kodehawa.mantaroself.utils.cache.URLCache;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,18 +19,16 @@ import static br.com.brjdevs.java.utils.extensions.CollectionUtils.random;
 public class ImageActionCmd extends NoArgsCommand {
 	public static final URLCache CACHE = new URLCache(20);
 
-	private final Color color;
 	private final String desc;
 	private final String format;
 	private final String imageName;
 	private final List<String> images;
 	private final String name;
 
-	public ImageActionCmd(String name, String desc, Color color, String imageName, String format, List<String> images) {
+	public ImageActionCmd(String name, String desc, String imageName, String format, List<String> images) {
 		super(Category.ACTION);
 		this.name = name;
 		this.desc = desc;
-		this.color = color;
 		this.imageName = imageName;
 		this.format = format;
 		this.images = images;
@@ -63,7 +60,6 @@ public class ImageActionCmd extends NoArgsCommand {
 	public MessageEmbed help(GuildMessageReceivedEvent event) {
 		return helpEmbed(event, name)
 			.setDescription(desc)
-			.setColor(color)
 			.build();
 	}
 

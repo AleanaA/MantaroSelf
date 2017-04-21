@@ -25,7 +25,6 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.json.JSONObject;
 
-import java.awt.Color;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -193,7 +192,6 @@ public class ImageCmds implements HasPostLoad {
 				}
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "e621 commmand")
-				.setColor(Color.PINK)
 				.setDescription("Retrieves images from the **e621** (furry) image board.")
 				.addField("Usage", prefix() + "e621 get <page> <imagenumber>: Gets an image based in parameters.\n"
 					+ prefix() + "e621 tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
@@ -339,7 +337,6 @@ public class ImageCmds implements HasPostLoad {
 				}
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "Konachan commmand")
-				.setColor(Color.PINK)
 				.setDescription("Retrieves images from the **Konachan** image board.")
 				.addField("Usage", prefix() + "konachan get <page> <imagenumber>: Gets an image based in parameters.\n"
 					+ prefix() + "konachan tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
@@ -443,7 +440,6 @@ public class ImageCmds implements HasPostLoad {
 				}
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "rule34.xxx commmand")
-				.setColor(Color.PINK)
 				.setDescription("Retrieves images from the **rule34** (hentai) image board.")
 				.addField("Usage", prefix() + "rule34 get <imagenumber>: Gets an image based in parameters.\n"
 					+ prefix() + "rule34 tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
@@ -505,7 +501,6 @@ public class ImageCmds implements HasPostLoad {
 				}
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "Yande.re command")
-				.setColor(Color.DARK_GRAY)
 				.setDescription("This command fetches images from the image board **yande.re**. Normally used to store *NSFW* images, "
 					+ "but tags can be set to safe if you so desire.\n"
 					+ prefix() + "yandere: Gets you a completely random image.\n"

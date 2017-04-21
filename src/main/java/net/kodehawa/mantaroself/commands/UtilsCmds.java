@@ -23,7 +23,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import us.monoid.web.Resty;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -189,7 +188,6 @@ public class UtilsCmds {
 					+ "sourcelang: The language the sentence is written in. Use codes (english = en)\n"
 					+ "outputlang: The language you want to translate to (french = fr, for example)\n"
 					+ "sentence: The sentence to translate.")
-				.setColor(Color.BLUE)
 				.build())
 			.build());
 	}
@@ -228,7 +226,6 @@ public class UtilsCmds {
 							embed.setAuthor("Urban Dictionary definition for " + content, data.list.get(0).permalink, null)
 								.setDescription("Main definition.")
 								.setThumbnail("https://everythingfat.files.wordpress.com/2013/01/ud-logo.jpg")
-								.setColor(Color.GREEN)
 								.addField("Definition", data.list.get(0).definition, false)
 								.addField("Example", data.list.get(0).example, false)
 								.addField(":thumbsup:", data.list.get(0).thumbs_up, true)
@@ -242,7 +239,6 @@ public class UtilsCmds {
 							embed.setAuthor("Urban Dictionary definition for " + beheadedSplit[0], data.list.get(defn).permalink, null)
 								.setThumbnail("https://everythingfat.files.wordpress.com/2013/01/ud-logo.jpg")
 								.setDescription("Definition " + defns)
-								.setColor(Color.GREEN)
 								.addField("Definition", data.list.get(defn).definition, false)
 								.addField("Example", data.list.get(defn).example, false)
 								.addField(":thumbsup:", data.list.get(defn).thumbs_up, true)
@@ -257,7 +253,6 @@ public class UtilsCmds {
 				}
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "Urban dictionary")
-				.setColor(Color.CYAN)
 				.setDescription("Retrieves definitions from **Urban Dictionary**.\n"
 					+ "Usage: \n"
 					+ prefix() + "urban <term>-><number>: Retrieve a definition based on the given parameters.\n"
@@ -306,8 +301,7 @@ public class UtilsCmds {
 					Double finalWindSpeedImperial = ws / 0.447046;
 					long end = System.currentTimeMillis() - start;
 
-					embed.setColor(Color.CYAN)
-						.setTitle(":flag_" + countryCode.toLowerCase() + ":" + " Forecast information for " + content, null)
+					embed.setTitle(":flag_" + countryCode.toLowerCase() + ":" + " Forecast information for " + content, null)
 						.setDescription(status + " (" + clness + "% cloudiness)")
 						.addField(":thermometer: Temperature", finalTemperatureCelcius.intValue() + "°C | " +
 							finalTemperatureFarnheit.intValue() + "°F", true)

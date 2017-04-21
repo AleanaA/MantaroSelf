@@ -108,7 +108,6 @@ public class CustomCmds implements HasPostLoad {
 
 	@RegisterCommand
 	public static void custom(CommandRegistry cr) {
-		String any = "[\\d\\D]*?";
 		Pattern addPattern = Pattern.compile(";", Pattern.LITERAL);
 
 		cr.register("custom", new SimpleCommandCompat(Category.UTILS) {
@@ -142,6 +141,9 @@ public class CustomCmds implements HasPostLoad {
 					int size = custom.size();
 					custom.clear();
 
+					//save at data
+					data().save();
+
 					event.getChannel().sendMessage(EmoteReference.PENCIL + "Cleared **" + size + " Custom Commands**!").queue();
 					return;
 				}
@@ -160,6 +162,9 @@ public class CustomCmds implements HasPostLoad {
 						//clear commands if none
 						if (custom.keySet().stream().noneMatch(s -> s.endsWith(":" + cmd)))
 							CommandProcessor.REGISTRY.commands().remove(cmd);
+
+						//save at data
+						data().save();
 
 						event.getChannel().sendMessage(EmoteReference.PENCIL + "Removed Custom Command ``" + cmd + "``!").queue();
 					}
@@ -214,6 +219,9 @@ public class CustomCmds implements HasPostLoad {
 					if (custom.keySet().stream().noneMatch(cmd::equals))
 						CommandProcessor.REGISTRY.commands().remove(cmd);
 
+					//save at data
+					data().save();
+
 					event.getChannel().sendMessage(EmoteReference.CORRECT + "Renamed command ``" + cmd + "`` to ``" + value + "``!").queue();
 				}
 
@@ -227,6 +235,9 @@ public class CustomCmds implements HasPostLoad {
 
 					//add mini-hack
 					CommandProcessor.REGISTRY.commands().put(cmd, customCommand);
+
+					//save at data
+					data().save();
 
 					event.getChannel().sendMessage(EmoteReference.CORRECT + "Saved to command ``" + cmd + "``!").queue();
 
@@ -249,9 +260,10 @@ public class CustomCmds implements HasPostLoad {
 						"Usage:",
 						"`" + prefix() + "custom`: Shows this help\n" +
 							"`" + prefix() + "custom <list|ls> [detailed]`: List all commands. If detailed is supplied, it prints the responses of each command.\n" +
-							"`" + prefix() + "custom clear`: Remove all Custom Commands from this Guild.\n" +
+							"`" + prefix() + "custom clear`: Remove all Custom Commands.\n" +
+							"`" + prefix() + "custom raw <command>`: Get the raw response of a Custom Command.\n" +
+							"`" + prefix() + "custom rename <command> <name>`: Renames a Custom Command.\n" +
 							"`" + prefix() + "custom add <name> <responses>`: Add a new Command with the response provided. (A list of modifiers can be found on [here](https://hastebin.com/xolijewitu.http)\n" +
-							"`" + prefix() + "custom make <name>`: Starts a Interactive Operation to create a command with the specified name.\n" +
 							"`" + prefix() + "custom <remove|rm> <name>`: Removes a command with an specific name.",
 						false
 					).build();
@@ -271,7 +283,9 @@ public class CustomCmds implements HasPostLoad {
 			}
 
 			//add mini-hack
-			CommandProcessor.REGISTRY.commands().put(name, customCommand);
+			CommandProcessor.REGISTRY.commands().put('_' + name, customCommand);
 		});
+
+		data().save();
 	}
 }

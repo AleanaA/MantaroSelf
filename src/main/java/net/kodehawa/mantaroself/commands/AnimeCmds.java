@@ -127,7 +127,6 @@ public class AnimeCmds implements HasPostLoad {
 						+ prefix() + "anime <animename>: Gets information of an anime based on parameters.\n"
 						+ "Parameter description:\n"
 						+ "animename: The name of the anime you are looking for. Make sure to write it similar to the original english name.\n")
-					.setColor(Color.PINK)
 					.build();
 			}
 

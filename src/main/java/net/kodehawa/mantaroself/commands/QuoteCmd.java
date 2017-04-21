@@ -18,10 +18,8 @@ import static net.kodehawa.mantaroself.utils.StringUtils.SPLIT_PATTERN;
 @Slf4j
 @RegisterCommand.Class
 public class QuoteCmd {
-	@RegisterCommand
+	//@RegisterCommand
 	public static void quote(CommandRegistry registry) {
-		//noinspection ConstantIfStatement,ConstantConditions
-		if (true) return; //Just to make this compile-able
 
 		registry.register("quote", new SimpleCommandCompat(Category.UTILS) {
 			@Override

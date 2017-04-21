@@ -17,7 +17,11 @@ plugins {
 }
 
 //Define the Main Class
-mainClassName = "net.kodehawa.mantaroself.MantaroSelf"
+ext {
+	bootClass = "net.kodehawa.mantaroself.MantaroSelf"
+}
+
+mainClassName = bootClass
 
 //Use an unified versioning system
 def ver = new Version(major: 1, minor: 0, revision: 0)
@@ -30,7 +34,7 @@ targetCompatibility = 1.8
 repositories {
 	jcenter()
 	maven {
-		url  "http://dl.bintray.com/frederikam/JCA"
+		url "http://dl.bintray.com/frederikam/JCA"
 	}
 }
 
@@ -64,9 +68,9 @@ dependencies {
 
 	compile 'frederikam:JCA:1.0'
 
-    compile 'net.sf.trove4j:trove4j:3.0.3'
+	compile 'net.sf.trove4j:trove4j:3.0.3'
 
-    compile 'net.bytebuddy:byte-buddy:1.6.9'
+	compile 'net.bytebuddy:byte-buddy:1.6.9'
 }
 
 task wrapper(type: Wrapper) {
@@ -95,18 +99,36 @@ tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
 }
 
-build.dependsOn shadowJar
+task zip(dependsOn: shadowJar, type: Zip) {
+	from shadowJar
+	from("assets") { into "assets" }
+	classifier = "dist"
+}
+
+task tar(dependsOn: shadowJar, type: Tar) {
+	from shadowJar
+	from("assets") { into "assets" }
+	classifier = "dist"
+}
+
+task cleanDistTar(type: Delete) { delete files(distTar) }
+distTar { classifier = "trash" }
+distTar.finalizedBy cleanDistTar
+
+task cleanDistZip(type: Delete) { delete files(distZip) }
+distZip { classifier = "trash" }
+distZip.finalizedBy cleanDistZip
+
+task cleanShittyJar(type: Delete) { delete files(jar) }
+jar { classifier = "trash" }
+jar.finalizedBy cleanShittyJar
+
+shadowJar { classifier = "" }
+
+build.dependsOn shadowJar, zip, tar
 
 artifacts {
-	archives shadowJar
-}
-
-jar {
-	classifier = "nodeps"
-}
-
-shadowJar {
-	classifier = ""
+	archives shadowJar, zip, tar
 }
 
 class Version {

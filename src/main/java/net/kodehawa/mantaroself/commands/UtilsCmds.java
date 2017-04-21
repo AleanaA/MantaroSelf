@@ -2,7 +2,9 @@ package net.kodehawa.mantaroself.commands;
 
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.kodehawa.lib.google.Crawler;
 import net.kodehawa.mantaroself.commands.utils.data.UrbanData;
 import net.kodehawa.mantaroself.commands.utils.data.WeatherData;
@@ -11,7 +13,9 @@ import net.kodehawa.mantaroself.modules.CommandRegistry;
 import net.kodehawa.mantaroself.modules.Commands;
 import net.kodehawa.mantaroself.modules.RegisterCommand;
 import net.kodehawa.mantaroself.modules.commands.Category;
+import net.kodehawa.mantaroself.modules.commands.SimpleCommandCompat;
 import net.kodehawa.mantaroself.utils.DiscordUtils;
+import net.kodehawa.mantaroself.utils.StringUtils;
 import net.kodehawa.mantaroself.utils.Utils;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 import net.kodehawa.mantaroself.utils.data.GsonDataManager;
@@ -31,6 +35,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.function.IntConsumer;
 
+import static br.com.brjdevs.java.utils.extensions.CollectionUtils.random;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.kodehawa.mantaroself.MantaroSelf.prefix;
@@ -40,6 +45,29 @@ import static net.kodehawa.mantaroself.data.MantaroData.config;
 @RegisterCommand.Class
 public class UtilsCmds {
 	private static final Resty resty = new Resty();
+
+	@RegisterCommand
+	public static void choose(CommandRegistry registry) {
+		registry.register("choose", new SimpleCommandCompat(Category.UTILS) {
+			@Override
+			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
+				event.getChannel().sendMessage("I choose ``" + random(args) + "``").queue();
+			}
+
+			@Override
+			public String[] splitArgs(String content) {
+				return StringUtils.advancedSplitArgs(content, -1);
+			}
+
+			@Override
+			public MessageEmbed help(GuildMessageReceivedEvent event) {
+				return baseEmbed(event, "Choose Command")
+					.setDescription("Choose between 1 or more things\n" +
+						"It accepts all parameters it gives (Also in quotes) and chooses a random one.")
+					.build();
+			}
+		});
+	}
 
 	private static String dateGMT(String timezone) throws ParseException, NullPointerException {
 		SimpleDateFormat dateGMT = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");

@@ -47,7 +47,7 @@ public class CustomCmds implements HasPostLoad {
 		}
 
 		private void handle(String cmdName, GuildMessageReceivedEvent event) {
-			List<String> values = data().get().custom.get(event.getGuild().getId() + ":" + cmdName);
+			List<String> values = data().get().custom.get(cmdName);
 			if (values == null) return;
 
 			String response = random(values);
@@ -249,12 +249,10 @@ public class CustomCmds implements HasPostLoad {
 						"Usage:",
 						"`" + prefix() + "custom`: Shows this help\n" +
 							"`" + prefix() + "custom <list|ls> [detailed]`: List all commands. If detailed is supplied, it prints the responses of each command.\n" +
-							"`" + prefix() + "custom debug`: Gives a Hastebin of the Raw Custom Commands Data. **(SELF-ONLY)**\n" +
-							"`" + prefix() + "custom clear`: Remove all Custom Commands from this Guild. **(SELF-ONLY)**\n" +
+							"`" + prefix() + "custom clear`: Remove all Custom Commands from this Guild.\n" +
 							"`" + prefix() + "custom add <name> <responses>`: Add a new Command with the response provided. (A list of modifiers can be found on [here](https://hastebin.com/xolijewitu.http)\n" +
 							"`" + prefix() + "custom make <name>`: Starts a Interactive Operation to create a command with the specified name.\n" +
-							"`" + prefix() + "custom <remove|rm> <name>`: Removes a command with an specific name.\n" +
-							"`" + prefix() + "custom import <search>`: Imports a command from another guild you're in.",
+							"`" + prefix() + "custom <remove|rm> <name>`: Removes a command with an specific name.",
 						false
 					).build();
 			}

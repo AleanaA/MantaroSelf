@@ -59,7 +59,7 @@ public class Mapifier {
 		map.put(prefix, event.getAuthor().getAsMention() + "@" + mention(event.getChannel()));
 		prefix = prefix + ".";
 		map(prefix + "channel", map, event.getChannel());
-		map(prefix + "guild", map, event.getGuild()); //TODO NULLABLE
+		if (event.getGuild() != null) map(prefix + "guild", map, event.getGuild());
 		map(prefix + "me", map, event.getJDA().getSelfUser(), event.getGuild().getSelfMember());
 		map(prefix + "author", map, event.getAuthor(), event.getMember());
 		map(prefix + "message", map, event.getMessage());

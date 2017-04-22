@@ -1,9 +1,12 @@
 package net.kodehawa.mantaroself.modules.commands;
 
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import static net.kodehawa.mantaroself.commands.info.CommandStatsManager.log;
+import static net.kodehawa.mantaroself.utils.DiscordUtils.name;
+import static net.kodehawa.mantaroself.utils.Utils.optional;
 
 public abstract class NoArgsCommand implements Command {
 	private final Category category;
@@ -12,7 +15,7 @@ public abstract class NoArgsCommand implements Command {
 		this.category = category;
 	}
 
-	protected abstract void call(GuildMessageReceivedEvent event, String content);
+	protected abstract void call(MessageReceivedEvent event, String content);
 
 	/**
 	 * The Command's {@link Category}
@@ -25,7 +28,7 @@ public abstract class NoArgsCommand implements Command {
 	}
 
 	@Override
-	public void run(GuildMessageReceivedEvent event, String commandName, String content) {
+	public void run(MessageReceivedEvent event, String commandName, String content) {
 		call(event, content);
 		log(commandName);
 	}
@@ -35,15 +38,15 @@ public abstract class NoArgsCommand implements Command {
 		return false;
 	}
 
-	protected EmbedBuilder baseEmbed(GuildMessageReceivedEvent event, String name) {
+	protected EmbedBuilder baseEmbed(MessageReceivedEvent event, String name) {
 		return baseEmbed(event, name, event.getJDA().getSelfUser().getEffectiveAvatarUrl());
 	}
 
-	protected EmbedBuilder baseEmbed(GuildMessageReceivedEvent event, String name, String image) {
+	protected EmbedBuilder baseEmbed(MessageReceivedEvent event, String name, String image) {
 		return new EmbedBuilder()
 			.setAuthor(name, null, image)
-			.setColor(event.getMember().getColor())
-			.setFooter("Requested by " + event.getMember().getEffectiveName(), event.getAuthor().getEffectiveAvatarUrl());
+			.setColor(optional(event.getMember()).map(Member::getColor).orElse(null))
+			.setFooter("Requested by " + name(event), event.getAuthor().getEffectiveAvatarUrl());
 	}
 
 	protected void doTimes(int times, Runnable runnable) {
@@ -52,11 +55,11 @@ public abstract class NoArgsCommand implements Command {
 		}
 	}
 
-	protected EmbedBuilder helpEmbed(GuildMessageReceivedEvent event, String name) {
+	protected EmbedBuilder helpEmbed(MessageReceivedEvent event, String name) {
 		return baseEmbed(event, name);
 	}
 
-	protected void onHelp(GuildMessageReceivedEvent event) {
+	protected void onHelp(MessageReceivedEvent event) {
 		event.getChannel().sendMessage(help(event)).queue();
 	}
 }

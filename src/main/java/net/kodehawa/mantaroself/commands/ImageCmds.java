@@ -5,8 +5,8 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.lib.imageboard.e621.main.e621;
 import net.kodehawa.lib.imageboard.konachan.main.Konachan;
 import net.kodehawa.lib.imageboard.konachan.main.entities.Wallpaper;
@@ -202,7 +202,7 @@ public class ImageCmds implements HasPostLoad {
 			.build());
 	}
 
-	private static EmbedBuilder getImage(int argsCount, String requestType, String url, String rating, String[] messageArray, GuildMessageReceivedEvent event) {
+	private static EmbedBuilder getImage(int argsCount, String requestType, String url, String rating, String[] messageArray, MessageReceivedEvent event) {
 		EmbedBuilder builder = new EmbedBuilder();
 
 		String json = Utils.wget(url);
@@ -252,7 +252,7 @@ public class ImageCmds implements HasPostLoad {
 		cr.register("konachan", Commands.newSimple(Category.IMAGE)
 
 			.code((thiz, event, content, args) -> {
-				TextChannel channel = event.getChannel();
+				MessageChannel channel = event.getChannel();
 
 				String noArgs = content.split(" ")[0];
 				switch (noArgs) {
@@ -458,7 +458,7 @@ public class ImageCmds implements HasPostLoad {
 				rating = "s";
 				needRating = args.length >= 3;
 				smallRequest = args.length <= 1;
-				TextChannel channel = event.getChannel();
+				MessageChannel channel = event.getChannel();
 				int argCount = args.length - 1;
 
 				try {

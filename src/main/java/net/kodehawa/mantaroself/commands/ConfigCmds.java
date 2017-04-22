@@ -8,7 +8,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.MantaroSelf;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
 import net.kodehawa.mantaroself.modules.RegisterCommand;
@@ -41,7 +41,7 @@ public class ConfigCmds {
 			this.name = name;
 		}
 
-		public abstract Object eval(GuildMessageReceivedEvent event, String code);
+		public abstract Object eval(MessageReceivedEvent event, String code);
 
 		@Override
 		public String toString() {
@@ -59,7 +59,7 @@ public class ConfigCmds {
 
 		evaluators.put("js", new Evaluator("Javascript (Nashorn)") {
 			@Override
-			public Object eval(GuildMessageReceivedEvent event, String code) {
+			public Object eval(MessageReceivedEvent event, String code) {
 				ScriptEngine nashorn = new ScriptEngineManager().getEngineByName("nashorn");
 				nashorn.put("jda", event.getJDA());
 				nashorn.put("event", event);
@@ -85,7 +85,7 @@ public class ConfigCmds {
 
 		evaluators.put("bsh", new Evaluator("Beanshell (Java)") {
 			@Override
-			public Object eval(GuildMessageReceivedEvent event, String code) {
+			public Object eval(MessageReceivedEvent event, String code) {
 				Interpreter beanshell = new Interpreter();
 				try {
 					beanshell.set("jda", event.getJDA());
@@ -106,7 +106,7 @@ public class ConfigCmds {
 
 		evaluators.put("groovy", new Evaluator("Groovy") {
 			@Override
-			public Object eval(GuildMessageReceivedEvent event, String code) {
+			public Object eval(MessageReceivedEvent event, String code) {
 				Binding groovyEnv = new Binding();
 				groovyEnv.setVariable("jda", event.getJDA());
 				groovyEnv.setVariable("event", event);
@@ -125,7 +125,7 @@ public class ConfigCmds {
 
 		registry.register("eval", new SimpleCommandCompat(Category.UTILS) {
 			@Override
-			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
+			public void call(MessageReceivedEvent event, String content, String[] args) {
 				if (args.length < 2) {
 					onHelp(event);
 					return;
@@ -151,7 +151,7 @@ public class ConfigCmds {
 			}
 
 			@Override
-			public MessageEmbed help(GuildMessageReceivedEvent event) {
+			public MessageEmbed help(MessageReceivedEvent event) {
 				return helpEmbed(event, "Eval Command")
 					.setDescription("Evaluates Arbitrary code.\n")
 					.addField("Usage:", prefix() + "eval <evaluator> <code>", false)
@@ -179,7 +179,7 @@ public class ConfigCmds {
 			}
 
 			@Override
-			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
+			public void call(MessageReceivedEvent event, String content, String[] args) {
 				if (args.length < 1) {
 					onHelp(event);
 					return;
@@ -216,7 +216,7 @@ public class ConfigCmds {
 			}
 
 			@Override
-			public MessageEmbed help(GuildMessageReceivedEvent event) {
+			public MessageEmbed help(MessageReceivedEvent event) {
 				return null;
 			}
 
@@ -228,7 +228,7 @@ public class ConfigCmds {
 
 		registry.register("presence", new NoArgsCommand(Category.SELF) {
 			@Override
-			protected void call(GuildMessageReceivedEvent event, String content) {
+			protected void call(MessageReceivedEvent event, String content) {
 				OnlineStatus status = OnlineStatus.fromKey(content);
 				if (status == OnlineStatus.UNKNOWN) {
 					onHelp(event);
@@ -240,7 +240,7 @@ public class ConfigCmds {
 			}
 
 			@Override
-			public MessageEmbed help(GuildMessageReceivedEvent event) {
+			public MessageEmbed help(MessageReceivedEvent event) {
 				return null;
 			}
 		});
@@ -250,7 +250,7 @@ public class ConfigCmds {
 	public static void shutdown(CommandRegistry registry) {
 		registry.register("shutdown", new SimpleCommandCompat(Category.UTILS) {
 			@Override
-			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
+			public void call(MessageReceivedEvent event, String content, String[] args) {
 				if (!content.equals("force")) {
 					try {
 						List<String> shutdownQuotes = data().get().botInfo.shutdownQuotes;
@@ -270,7 +270,7 @@ public class ConfigCmds {
 			}
 
 			@Override
-			public MessageEmbed help(GuildMessageReceivedEvent event) {
+			public MessageEmbed help(MessageReceivedEvent event) {
 				return helpEmbed(event, "Shutdown Command")
 					.setDescription("Shuts the Selfbot off.\nExecute with ``force`` as parameter to force exit.")
 					.build();

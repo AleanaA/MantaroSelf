@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.IMentionable;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.modules.commands.Category;
 import net.kodehawa.mantaroself.modules.commands.NoArgsCommand;
 import net.kodehawa.mantaroself.utils.cache.URLCache;
@@ -35,7 +35,7 @@ public class ImageActionCmd extends NoArgsCommand {
 	}
 
 	@Override
-	protected void call(GuildMessageReceivedEvent event, String content) {
+	protected void call(MessageReceivedEvent event, String content) {
 		String random = random(images);
 		try {
 			if (mentions(event).isEmpty()) {
@@ -57,13 +57,13 @@ public class ImageActionCmd extends NoArgsCommand {
 	}
 
 	@Override
-	public MessageEmbed help(GuildMessageReceivedEvent event) {
+	public MessageEmbed help(MessageReceivedEvent event) {
 		return helpEmbed(event, name)
 			.setDescription(desc)
 			.build();
 	}
 
-	private String mentions(GuildMessageReceivedEvent event) {
+	private String mentions(MessageReceivedEvent event) {
 		return event.getMessage().getMentionedUsers().stream().map(IMentionable::getAsMention).collect(Collectors.joining(" ")).trim();
 	}
 }

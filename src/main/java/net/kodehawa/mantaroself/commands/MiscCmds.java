@@ -2,7 +2,7 @@ package net.kodehawa.mantaroself.commands;
 
 import com.mashape.unirest.http.Unirest;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
 import net.kodehawa.mantaroself.modules.Commands;
 import net.kodehawa.mantaroself.modules.RegisterCommand;
@@ -69,7 +69,7 @@ public class MiscCmds {
 		cr.register("misc", Commands.newSimple(Category.MISC)
 
 			.code((thiz, event, content, args) -> {
-				TextChannel channel = event.getChannel();
+				MessageChannel channel = event.getChannel();
 				String noArgs = content.split(" ")[0];
 				switch (noArgs) {
 					case "reverse":

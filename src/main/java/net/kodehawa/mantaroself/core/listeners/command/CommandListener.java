@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import net.kodehawa.mantaroself.core.CommandProcessor;
 import net.kodehawa.mantaroself.utils.Utils;
@@ -49,13 +49,13 @@ public class CommandListener implements EventListener {
 	@Listener
 	@Override
 	public void onEvent(Event event) {
-		if (event instanceof GuildMessageReceivedEvent) {
-			GuildMessageReceivedEvent e = (GuildMessageReceivedEvent) event;
+		if (event instanceof MessageReceivedEvent) {
+			MessageReceivedEvent e = (MessageReceivedEvent) event;
 			Async.thread("CmdThread", () -> onCommand(e));
 		}
 	}
 
-	private void onCommand(GuildMessageReceivedEvent event) {
+	private void onCommand(MessageReceivedEvent event) {
 		MESSAGE_CACHE.put(event.getMessage().getId(), Optional.of(event.getMessage()));
 
 		if (!event.getJDA().getSelfUser().equals(event.getAuthor())) {

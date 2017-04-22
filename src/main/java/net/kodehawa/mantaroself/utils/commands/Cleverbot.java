@@ -1,7 +1,7 @@
 package net.kodehawa.mantaroself.utils.commands;
 
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.MantaroSelf;
 import net.kodehawa.mantaroself.utils.MapObject;
 
@@ -14,14 +14,14 @@ import static br.com.brjdevs.java.utils.strings.StringUtils.splitArgs;
 
 @Slf4j
 public class Cleverbot {
-	public static final Map<Predicate<String>, Consumer<GuildMessageReceivedEvent>> OVERRIDES = new MapObject<>();
+	public static final Map<Predicate<String>, Consumer<MessageReceivedEvent>> OVERRIDES = new MapObject<>();
 
-	public static void handle(GuildMessageReceivedEvent event) {
+	public static void handle(MessageReceivedEvent event) {
 		if (MantaroSelf.CLEVERBOT == null) return;
 
 		String input = splitArgs(event.getMessage().getStrippedContent(), 2)[1];
 
-		for (Entry<Predicate<String>, Consumer<GuildMessageReceivedEvent>> override : OVERRIDES.entrySet()) {
+		for (Entry<Predicate<String>, Consumer<MessageReceivedEvent>> override : OVERRIDES.entrySet()) {
 			if (override.getKey().test(input)) {
 				override.getValue().accept(event);
 				return;

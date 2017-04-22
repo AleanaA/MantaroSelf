@@ -6,7 +6,7 @@ import com.mashape.unirest.http.Unirest;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.MantaroInfo;
 import net.kodehawa.mantaroself.commands.utils.data.AnimeData;
 import net.kodehawa.mantaroself.commands.utils.data.CharacterData;
@@ -33,7 +33,7 @@ import static net.kodehawa.mantaroself.data.MantaroData.config;
 public class AnimeCmds implements HasPostLoad {
 	public static String authToken;
 
-	private static void animeData(GuildMessageReceivedEvent event, AnimeData type) {
+	private static void animeData(MessageReceivedEvent event, AnimeData type) {
 		String ANIME_TITLE = type.getTitle_english();
 		String RELEASE_DATE = StringUtils.substringBefore(type.getStart_date(), "T");
 		String END_DATE = StringUtils.substringBefore(type.getEnd_date(), "T");
@@ -63,7 +63,7 @@ public class AnimeCmds implements HasPostLoad {
 		event.getChannel().sendMessage(embed.build()).queue();
 	}
 
-	private static void characterData(GuildMessageReceivedEvent event, CharacterData character) {
+	private static void characterData(MessageReceivedEvent event, CharacterData character) {
 		String JAP_NAME = character.getName_japanese() == null ? "" : "\n(" + character.getName_japanese() + ")";
 		String CHAR_NAME = character.getName_first() + " " + character.getName_last() + JAP_NAME;
 		String ALIASES = character.getName_alt() == null ? "No aliases" : "Also known as: " + character.getName_alt();
@@ -90,7 +90,7 @@ public class AnimeCmds implements HasPostLoad {
 
 		cr.register("anime", new SimpleCommandCompat(Category.FUN) {
 			@Override
-			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
+			public void call(MessageReceivedEvent event, String content, String[] args) {
 				try {
 					String connection = String.format("https://anilist.co/api/anime/search/%1s?access_token=%2s", URLEncoder.encode(content, "UTF-8"), authToken);
 					String json = Utils.wget(connection);
@@ -120,7 +120,7 @@ public class AnimeCmds implements HasPostLoad {
 			}
 
 			@Override
-			public MessageEmbed help(GuildMessageReceivedEvent event) {
+			public MessageEmbed help(MessageReceivedEvent event) {
 				return helpEmbed(event, "Anime command")
 					.setDescription("Retrieves anime info from **AniList** (For anime characters use " + prefix() + "character).\n"
 						+ "Usage: \n"
@@ -134,7 +134,7 @@ public class AnimeCmds implements HasPostLoad {
 
 		cr.register("character", new SimpleCommandCompat(Category.FUN) {
 			@Override
-			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
+			public void call(MessageReceivedEvent event, String content, String[] args) {
 				try {
 					String url = String.format("https://anilist.co/api/character/search/%1s?access_token=%2s", URLEncoder.encode(content, "UTF-8"), authToken);
 					String json = Utils.wget(url);
@@ -160,7 +160,7 @@ public class AnimeCmds implements HasPostLoad {
 			}
 
 			@Override
-			public MessageEmbed help(GuildMessageReceivedEvent event) {
+			public MessageEmbed help(MessageReceivedEvent event) {
 				return helpEmbed(event, "Character command")
 					.setDescription("Retrieves character info from **AniList**.\n"
 						+ "Usage: \n"

@@ -1,7 +1,7 @@
 package net.kodehawa.mantaroself.commands.action;
 
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.modules.commands.Category;
 import net.kodehawa.mantaroself.modules.commands.NoArgsCommand;
 
@@ -24,7 +24,7 @@ public class TextActionCmd extends NoArgsCommand {
 	}
 
 	@Override
-	protected void call(GuildMessageReceivedEvent event, String content) {
+	protected void call(MessageReceivedEvent event, String content) {
 		event.getChannel().sendMessage(String.format(format, random(strings))).queue();
 	}
 
@@ -34,7 +34,7 @@ public class TextActionCmd extends NoArgsCommand {
 	}
 
 	@Override
-	public MessageEmbed help(GuildMessageReceivedEvent event) {
+	public MessageEmbed help(MessageReceivedEvent event) {
 		return helpEmbed(event, name)
 			.setDescription(desc)
 			.build();

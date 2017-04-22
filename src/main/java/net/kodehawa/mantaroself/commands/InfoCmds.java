@@ -126,8 +126,14 @@ public class InfoCmds implements HasPostLoad {
 		cr.register("serverinfo", Commands.newSimple(Category.INFO)
 
 			.code((thiz, event, content, args) -> {
-				Guild guild = event.getGuild();
-				TextChannel channel = event.getChannel();
+				TextChannel channel = event.getTextChannel();
+
+				if (channel == null) {
+					event.getChannel().sendMessage(EmoteReference.ERROR + "This command can be issued from a guild!").queue();
+					return;
+				}
+
+				Guild guild = channel.getGuild();
 
 				String roles = guild.getRoles().stream()
 					.filter(role -> !guild.getPublicRole().equals(role))
@@ -269,7 +275,7 @@ public class InfoCmds implements HasPostLoad {
 		cr.register("ping", Commands.newSimple(Category.INFO)
 
 			.code((thiz, event, content, args) -> {
-				if (!rateLimiter.process(event.getMember())) {
+				if (!rateLimiter.process(event.getAuthor())) {
 					event.getChannel().sendMessage(EmoteReference.ERROR + "Uh-oh. Slowdown buddy.").queue();
 					return;
 				}

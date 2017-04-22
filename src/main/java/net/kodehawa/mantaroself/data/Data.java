@@ -2,10 +2,12 @@ package net.kodehawa.mantaroself.data;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static net.kodehawa.mantaroself.utils.DiscordUtils.name;
 
 public class Data {
 	public static class BotInfo {
@@ -20,7 +22,7 @@ public class Data {
 	public static class Quote {
 		private static final SimpleDateFormat FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
-		public static Quote quote(GuildMessageReceivedEvent event) {
+		public static Quote quote(MessageReceivedEvent event) {
 			Quote quote = new Quote();
 			quote.date = event.getMessage().getCreationTime().toInstant().toEpochMilli();
 
@@ -28,7 +30,7 @@ public class Data {
 			quote.guildId = event.getGuild().getId();
 			quote.channelId = event.getChannel().getId();
 
-			quote.userName = event.getMember().getEffectiveName();
+			quote.userName = name(event);
 			quote.userAvatar = event.getAuthor().getEffectiveAvatarUrl();
 			quote.guildName = event.getGuild().getName();
 			quote.guildAvatar = event.getGuild().getIconUrl();
@@ -42,7 +44,7 @@ public class Data {
 		public String userId, guildId, channelId;
 		public String userName, userAvatar, guildName, guildAvatar, channelName, content;
 
-		public MessageEmbed embed(GuildMessageReceivedEvent event) {
+		public MessageEmbed embed(MessageReceivedEvent event) {
 			return new EmbedBuilder().setAuthor(userName + " said: ", null, guildAvatar)
 				.setDescription("Quote made in server " + guildName + " in channel #" + channelName)
 				.addField("Content", content, false)

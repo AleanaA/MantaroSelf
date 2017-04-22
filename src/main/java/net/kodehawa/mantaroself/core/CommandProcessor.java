@@ -1,7 +1,7 @@
 package net.kodehawa.mantaroself.core;
 
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.MantaroSelf;
 import net.kodehawa.mantaroself.data.MantaroData;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
@@ -12,7 +12,7 @@ import static net.kodehawa.mantaroself.utils.StringUtils.splitArgs;
 public class CommandProcessor {
 	public static final CommandRegistry REGISTRY = new CommandRegistry();
 
-	public boolean run(GuildMessageReceivedEvent event) {
+	public boolean run(MessageReceivedEvent event) {
 		if (MantaroSelf.getLoadStatus() != LoadState.POSTLOAD) return false;
 
 		String rawCmd = event.getMessage().getRawContent();

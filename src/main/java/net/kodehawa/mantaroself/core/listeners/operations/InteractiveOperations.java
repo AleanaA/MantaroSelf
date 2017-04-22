@@ -2,8 +2,8 @@ package net.kodehawa.mantaroself.core.listeners.operations;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import net.kodehawa.mantaroself.core.listeners.external.OptimizedListener;
 import net.kodehawa.mantaroself.utils.Expirator;
@@ -34,9 +34,9 @@ public class InteractiveOperations {
 
 	private static final Expirator<RunningOperation> EXPIRATOR = new Expirator<>();
 	private static final Map<String, RunningOperation> OPERATIONS = new ConcurrentHashMap<>();
-	private static final EventListener LISTENER = new OptimizedListener<GuildMessageReceivedEvent>(GuildMessageReceivedEvent.class) {
+	private static final EventListener LISTENER = new OptimizedListener<MessageReceivedEvent>(MessageReceivedEvent.class) {
 		@Override
-		public void event(GuildMessageReceivedEvent event) {
+		public void event(MessageReceivedEvent event) {
 			String id = event.getChannel().getId();
 
 			OPERATIONS.values().remove(null);
@@ -68,7 +68,7 @@ public class InteractiveOperations {
 		return true;
 	}
 
-	public static boolean create(TextChannel channel, String operationName, int startingTimeout, OptionalInt increasingTimeout, InteractiveOperation operation) {
+	public static boolean create(MessageChannel channel, String operationName, int startingTimeout, OptionalInt increasingTimeout, InteractiveOperation operation) {
 		Objects.requireNonNull(channel, "channel");
 		return create(channel.getId(), operationName, startingTimeout, increasingTimeout, operation);
 	}
@@ -77,7 +77,7 @@ public class InteractiveOperations {
 		return OPERATIONS.get(channelId);
 	}
 
-	public static RunningOperation getCurrentOperation(TextChannel channel) {
+	public static RunningOperation getCurrentOperation(MessageChannel channel) {
 		return getCurrentOperation(channel.getId());
 	}
 

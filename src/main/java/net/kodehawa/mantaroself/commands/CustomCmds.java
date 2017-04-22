@@ -2,8 +2,9 @@ package net.kodehawa.mantaroself.commands;
 
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.commands.custom.EmbedJSON;
 import net.kodehawa.mantaroself.core.CommandProcessor;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
@@ -28,6 +29,7 @@ import static net.kodehawa.mantaroself.commands.info.CommandStatsManager.log;
 import static net.kodehawa.mantaroself.commands.info.HelpUtils.forType;
 import static net.kodehawa.mantaroself.data.MantaroData.data;
 import static net.kodehawa.mantaroself.utils.StringUtils.SPLIT_PATTERN;
+import static net.kodehawa.mantaroself.utils.Utils.optional;
 
 @Slf4j
 @RegisterCommand.Class
@@ -42,11 +44,11 @@ public class CustomCmds implements HasPostLoad {
 		}
 
 		@Override
-		public MessageEmbed help(GuildMessageReceivedEvent event) {
+		public MessageEmbed help(MessageReceivedEvent event) {
 			return null;
 		}
 
-		private void handle(String cmdName, GuildMessageReceivedEvent event) {
+		private void handle(String cmdName, MessageReceivedEvent event) {
 			List<String> values = data().get().custom.get(cmdName);
 			if (values == null) return;
 
@@ -81,7 +83,13 @@ public class CustomCmds implements HasPostLoad {
 						event.getChannel().sendMessage(EmoteReference.ERROR2 + "The string ``" + v + "`` isn't a valid link.").queue();
 						return;
 					}
-					event.getChannel().sendMessage(new EmbedBuilder().setImage(v).setTitle(cmdName, null).setColor(event.getMember().getColor()).build()).queue();
+					event.getChannel().sendMessage(
+						new EmbedBuilder()
+							.setImage(v)
+							.setTitle(cmdName, null)
+							.setColor(optional(event.getMember()).map(Member::getColor).orElse(null))
+							.build()
+					).queue();
 					return;
 				}
 			}
@@ -90,7 +98,7 @@ public class CustomCmds implements HasPostLoad {
 		}
 
 		@Override
-		public void run(GuildMessageReceivedEvent event, String cmdName, String ignored) {
+		public void run(MessageReceivedEvent event, String cmdName, String ignored) {
 			try {
 				handle(cmdName, event);
 			} catch (Exception e) {
@@ -112,7 +120,7 @@ public class CustomCmds implements HasPostLoad {
 
 		cr.register("custom", new SimpleCommandCompat(Category.UTILS) {
 			@Override
-			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
+			public void call(MessageReceivedEvent event, String content, String[] args) {
 				if (args.length < 1) {
 					onHelp(event);
 					return;
@@ -253,7 +261,7 @@ public class CustomCmds implements HasPostLoad {
 			}
 
 			@Override
-			public MessageEmbed help(GuildMessageReceivedEvent event) {
+			public MessageEmbed help(MessageReceivedEvent event) {
 				return helpEmbed(event, "CustomCommand Manager")
 					.addField("Description:", "Manages the Custom Commands of the Guild.", false)
 					.addField(

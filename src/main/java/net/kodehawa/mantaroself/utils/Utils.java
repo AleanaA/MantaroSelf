@@ -25,6 +25,7 @@ import java.net.URLEncoder;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -82,6 +83,10 @@ public class Utils {
 				}
 			};
 		};
+	}
+
+	public static <T> Optional<T> optional(T t) {
+		return Optional.ofNullable(t);
 	}
 
 	public static String paste(String toSend) {

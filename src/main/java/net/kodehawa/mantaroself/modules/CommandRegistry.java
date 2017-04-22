@@ -1,7 +1,7 @@
 package net.kodehawa.mantaroself.modules;
 
 import com.google.common.base.Preconditions;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.modules.commands.Command;
 
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class CommandRegistry {
 		return commands;
 	}
 
-	public boolean process(GuildMessageReceivedEvent event, String cmdname, String content) {
+	public boolean process(MessageReceivedEvent event, String cmdname, String content) {
 		Command cmd = commands.get(cmdname);
 		if (cmd == null) return false;
 		cmd.run(event, cmdname, content);

@@ -2,7 +2,7 @@ package net.kodehawa.mantaroself.commands;
 
 import br.com.brjdevs.java.utils.extensions.Async;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
 import net.kodehawa.mantaroself.modules.Commands;
 import net.kodehawa.mantaroself.modules.RegisterCommand;
@@ -95,7 +95,7 @@ public class FunCmds {
 
 		registry.register("troll", new SimpleCommandCompat(Category.FUN) {
 			@Override
-			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
+			public void call(MessageReceivedEvent event, String content, String[] args) {
 				if (args.length < 1) {
 					onHelp(event);
 					return;
@@ -153,7 +153,7 @@ public class FunCmds {
 			}
 
 			@Override
-			public MessageEmbed help(GuildMessageReceivedEvent event) {
+			public MessageEmbed help(MessageReceivedEvent event) {
 				return helpEmbed(event, "Troll Command").build(); //TODO WIP
 			}
 		});

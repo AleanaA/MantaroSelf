@@ -1,7 +1,7 @@
 package net.kodehawa.mantaroself.modules.commands;
 
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public interface Command {
 	/**
@@ -17,7 +17,7 @@ public interface Command {
 	 * @param event the event that triggered the help
 	 * @return a Nullable {@link MessageEmbed}
 	 */
-	MessageEmbed help(GuildMessageReceivedEvent event);
+	MessageEmbed help(MessageReceivedEvent event);
 
 	/**
 	 * Invokes the command to be executed.
@@ -26,7 +26,7 @@ public interface Command {
 	 * @param commandName the command name that was used
 	 * @param content     the arguments of the command
 	 */
-	void run(GuildMessageReceivedEvent event, String commandName, String content);
+	void run(MessageReceivedEvent event, String commandName, String content);
 
 	/**
 	 * Hides the command from the help command

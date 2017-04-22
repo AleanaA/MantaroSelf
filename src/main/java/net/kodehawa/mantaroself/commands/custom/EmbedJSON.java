@@ -1,12 +1,15 @@
 package net.kodehawa.mantaroself.commands.custom;
 
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+
+import static net.kodehawa.mantaroself.utils.Utils.optional;
 
 public class EmbedJSON {
 	public static class EmbedField {
@@ -23,7 +26,7 @@ public class EmbedJSON {
 	public String thumbnail;
 	public String title, titleUrl;
 
-	public MessageEmbed gen(GuildMessageReceivedEvent event) {
+	public MessageEmbed gen(MessageReceivedEvent event) {
 		EmbedBuilder embed = new EmbedBuilder();
 		if (title != null) embed.setTitle(title, titleUrl);
 		if (description != null) embed.setDescription(description);
@@ -38,7 +41,7 @@ public class EmbedJSON {
 			} catch (Exception ignored) {
 				String colorLower = color.toLowerCase();
 				if (colorLower.equals("member")) {
-					c = event.getMember().getColor();
+					c = optional(event.getMember()).map(Member::getColor).orElse(null);
 				} else if (colorLower.matches("#?(0x)?[0123456789abcdef]{1,6}")) {
 					try {
 						c = Color.decode(colorLower.startsWith("0x") ? colorLower : "0x" + colorLower);
@@ -61,4 +64,5 @@ public class EmbedJSON {
 
 		return embed.build();
 	}
+
 }

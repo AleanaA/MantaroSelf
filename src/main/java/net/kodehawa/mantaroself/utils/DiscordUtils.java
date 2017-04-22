@@ -1,10 +1,13 @@
 package net.kodehawa.mantaroself.utils;
 
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.client.entities.Group;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.core.listeners.operations.InteractiveOperations;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalInt;
@@ -26,7 +29,45 @@ public class DiscordUtils {
 		return Pair.of(b.toString(), list.size());
 	}
 
-	public static boolean selectInt(GuildMessageReceivedEvent event, int max, IntConsumer valueConsumer) {
+	public static String mention(MessageChannel channel) {
+		switch (channel.getType()) {
+			case TEXT:
+				return ((TextChannel) channel).getAsMention();
+			case PRIVATE:
+				return ((PrivateChannel) channel).getUser().getAsMention() + "'s DM";
+			case GROUP:
+				return channel.getName();
+			case VOICE:
+			case UNKNOWN:
+			default:
+				throw new IllegalStateException("[JDA Error] What in the Name of fuck.");
+		}
+	}
+
+	public static String name(@Nonnull User user, @Nullable Member member) {
+		return member == null ? user.getName() : member.getEffectiveName();
+	}
+
+	public static String name(MessageReceivedEvent event) {
+		return name(event.getAuthor(), event.getMember());
+	}
+
+	public static String name(MessageChannel channel) {
+		switch (channel.getType()) {
+			case TEXT:
+				return channel.getName();
+			case PRIVATE:
+				return channel.getName() + "'s DM";
+			case GROUP:
+				return channel.getName() != null ? channel.getName() : ((Group) channel).getOwner().getName() + "'s Group";
+			case VOICE:
+			case UNKNOWN:
+			default:
+				throw new IllegalStateException("[JDA Error] What in the Name of fuck.");
+		}
+	}
+
+	public static boolean selectInt(MessageReceivedEvent event, int max, IntConsumer valueConsumer) {
 		return InteractiveOperations.create(event.getChannel(), "Selection", 10000, OptionalInt.empty(), (e) -> {
 			if (!e.getAuthor().equals(event.getAuthor())) return false;
 
@@ -41,13 +82,13 @@ public class DiscordUtils {
 		});
 	}
 
-	public static <T> boolean selectList(GuildMessageReceivedEvent event, List<T> list, Function<T, String> toString, Function<String, MessageEmbed> toEmbed, Consumer<T> valueConsumer) {
+	public static <T> boolean selectList(MessageReceivedEvent event, List<T> list, Function<T, String> toString, Function<String, MessageEmbed> toEmbed, Consumer<T> valueConsumer) {
 		Pair<String, Integer> r = embedList(list, toString);
 		event.getChannel().sendMessage(toEmbed.apply(r.getLeft())).queue();
 		return selectInt(event, r.getRight() + 1, i -> valueConsumer.accept(list.get(i - 1)));
 	}
 
-	public static <T> boolean selectList(GuildMessageReceivedEvent event, T[] list, Function<T, String> toString, Function<String, MessageEmbed> toEmbed, Consumer<T> valueConsumer) {
+	public static <T> boolean selectList(MessageReceivedEvent event, T[] list, Function<T, String> toString, Function<String, MessageEmbed> toEmbed, Consumer<T> valueConsumer) {
 		Pair<String, Integer> r = embedList(Arrays.asList(list), toString);
 		event.getChannel().sendMessage(toEmbed.apply(r.getLeft())).queue();
 		return selectInt(event, r.getRight() + 1, i -> valueConsumer.accept(list[i - 1]));

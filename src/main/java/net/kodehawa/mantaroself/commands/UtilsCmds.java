@@ -2,9 +2,9 @@ package net.kodehawa.mantaroself.commands;
 
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.lib.google.Crawler;
 import net.kodehawa.mantaroself.commands.utils.data.UrbanData;
 import net.kodehawa.mantaroself.commands.utils.data.WeatherData;
@@ -49,7 +49,7 @@ public class UtilsCmds {
 	public static void choose(CommandRegistry registry) {
 		registry.register("choose", new SimpleCommandCompat(Category.UTILS) {
 			@Override
-			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
+			public void call(MessageReceivedEvent event, String content, String[] args) {
 				event.getChannel().sendMessage("I choose ``" + random(args) + "``").queue();
 			}
 
@@ -59,7 +59,7 @@ public class UtilsCmds {
 			}
 
 			@Override
-			public MessageEmbed help(GuildMessageReceivedEvent event) {
+			public MessageEmbed help(MessageReceivedEvent event) {
 				return baseEmbed(event, "Choose Command")
 					.setDescription("Choose between 1 or more things\n" +
 						"It accepts all parameters it gives (Also in quotes) and chooses a random one.")
@@ -137,7 +137,7 @@ public class UtilsCmds {
 
 			.code((thiz, event, content, args) -> {
 				try {
-					TextChannel channel = event.getChannel();
+					MessageChannel channel = event.getChannel();
 
 					if (!content.isEmpty()) {
 						String sourceLang = args[0];

@@ -1,16 +1,15 @@
 package net.kodehawa.mantaroself.commands.custom;
 
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.kodehawa.mantaroself.utils.DiscordUtils;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static net.kodehawa.mantaroself.utils.DiscordUtils.name;
 import static net.kodehawa.mantaroself.utils.StringUtils.splitArgs;
 import static net.kodehawa.mantaroself.utils.Utils.iterate;
 import static org.apache.commons.lang3.StringUtils.capitalize;
@@ -37,13 +36,13 @@ public class Mapifier {
 		map.put(prefix, guild.getName());
 		prefix = prefix + ".";
 		map.put(prefix + "name", guild.getName());
-		map(prefix + "owner", map, guild.getOwner());
+		map(prefix + "owner", map, guild.getOwner().getUser(), guild.getOwner());
 		map.put(prefix + "region", guild.getRegion().getName());
 		map(prefix + "publicChannel", map, guild.getPublicChannel());
 		//map(prefix + "me", map, guild.getSelfMember());
 	}
 
-	public static void map(String prefix, Map<String, String> map, Member member) {
+	public static void map(String prefix, Map<String, String> map, User author, Member member) {//TODO
 		map.put(prefix, member.getAsMention());
 		prefix = prefix + ".";
 		map.put(prefix + "username", member.getUser().getName());
@@ -54,13 +53,13 @@ public class Mapifier {
 		map.put(prefix + "mention", member.getAsMention());
 	}
 
-	public static void map(String prefix, Map<String, String> map, GuildMessageReceivedEvent event) {
-		map.put(prefix, event.getMember().getAsMention() + "@" + event.getChannel().getAsMention());
+	public static void map(String prefix, Map<String, String> map, MessageReceivedEvent event) {
+		map.put(prefix, event.getAuthor().getAsMention() + "@" + DiscordUtils.mention(event.getChannel()));
 		prefix = prefix + ".";
 		map(prefix + "channel", map, event.getChannel());
-		map(prefix + "guild", map, event.getGuild());
-		map(prefix + "me", map, event.getGuild().getSelfMember());
-		map(prefix + "author", map, event.getMember());
+		map(prefix + "guild", map, event.getGuild()); //TODO NULLABLE
+		map(prefix + "me", map, event.getJDA().getSelfUser(), event.getGuild().getSelfMember());
+		map(prefix + "author", map, event.getAuthor(), event.getMember());
 		map(prefix + "message", map, event.getMessage());
 	}
 
@@ -72,12 +71,14 @@ public class Mapifier {
 		map.put(prefix + "stripped", splitArgs(message.getStrippedContent(), 2)[1]);
 	}
 
-	public static void map(String prefix, Map<String, String> map, TextChannel channel) {
-		map.put(prefix, channel.getAsMention());
+	public static void map(String prefix, Map<String, String> map, MessageChannel channel) {
+		String mention = DiscordUtils.mention(channel);
+		map.put(prefix, mention);
 		prefix = prefix + ".";
-		map.put(prefix + "topic", channel.getTopic());
-		map.put(prefix + "name", channel.getName());
+		map.put(prefix + "mention", mention);
+		map.put(prefix + "name", name(channel));
 		map.put(prefix + "id", channel.getId());
-		map.put(prefix + "mention", channel.getAsMention());
+		map.put(prefix + "topic", channel.getType().isGuild() ? ((TextChannel) channel).getTopic() : "unknown");
 	}
+
 }

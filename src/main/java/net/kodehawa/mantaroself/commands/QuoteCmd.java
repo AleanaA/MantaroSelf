@@ -2,7 +2,7 @@ package net.kodehawa.mantaroself.commands;
 
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.data.Data.Quote;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
 import net.kodehawa.mantaroself.modules.RegisterCommand;
@@ -23,7 +23,7 @@ public class QuoteCmd {
 
 		registry.register("quote", new SimpleCommandCompat(Category.UTILS) {
 			@Override
-			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
+			public void call(MessageReceivedEvent event, String content, String[] args) {
 				if (args.length < 1) {
 					onHelp(event);
 					return;
@@ -77,7 +77,7 @@ public class QuoteCmd {
 			}
 
 			@Override
-			public MessageEmbed help(GuildMessageReceivedEvent event) {
+			public MessageEmbed help(MessageReceivedEvent event) {
 				return null;
 			}
 		});

@@ -4,7 +4,7 @@ import br.com.brjdevs.java.utils.extensions.CollectionUtils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.IMentionable;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.kodehawa.mantaroself.commands.action.ImageActionCmd;
 import net.kodehawa.mantaroself.commands.action.TextActionCmd;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
@@ -34,7 +34,7 @@ public class ActionCmds {
 		cr.register("action", Commands.newSimple(Category.ACTION)
 			.code((thiz, event, content, args) -> {
 				String noArgs = content.split(" ")[0];
-				TextChannel channel = event.getChannel();
+				MessageChannel channel = event.getChannel();
 				switch (noArgs) {
 					case "facedesk":
 						channel.sendMessage("http://puu.sh/rK6E7/0b745e5544.gif").queue();

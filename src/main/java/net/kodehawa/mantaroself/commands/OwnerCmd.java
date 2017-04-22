@@ -2,7 +2,7 @@
 //
 //import lombok.extern.slf4j.Slf4j;
 //import net.dv8tion.jda.core.entities.MessageEmbed;
-//import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+//import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 //import net.kodehawa.mantaroself.modules.CommandRegistry;
 //import net.kodehawa.mantaroself.modules.RegisterCommand;
 //import net.kodehawa.mantaroself.modules.commands.Category;
@@ -91,7 +91,7 @@
 //		//This command will keep being SimpleCommandCompat.
 //		cr.register("owner", new SimpleCommandCompat(Category.SELF) {
 //			@Override
-//			public void call(GuildMessageReceivedEvent event, String content, String[] args) {
+//			public void call(MessageReceivedEvent event, String content, String[] args) {
 //				if (args.length < 1) {
 //					onHelp(event);
 //					return;
@@ -150,7 +150,7 @@
 //			}
 //
 //			@Override
-//			public MessageEmbed help(GuildMessageReceivedEvent event) {
+//			public MessageEmbed help(MessageReceivedEvent event) {
 //				return helpEmbed(event, "Owner command")
 //					.setDescription(prefix() + "owner shutdown/forceshutdown: Shutdowns the bot\n" +
 //						prefix() + "owner restart/forcerestart: Restarts the bot.\n" +
@@ -163,7 +163,7 @@
 //		});
 //	}
 //
-//	private static void prepareShutdown(GuildMessageReceivedEvent event) {
+//	private static void prepareShutdown(MessageReceivedEvent event) {
 //
 //	}
 //}

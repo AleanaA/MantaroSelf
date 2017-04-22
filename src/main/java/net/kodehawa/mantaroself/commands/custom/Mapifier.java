@@ -1,15 +1,15 @@
 package net.kodehawa.mantaroself.commands.custom;
 
+import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.kodehawa.mantaroself.utils.DiscordUtils;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static net.kodehawa.mantaroself.utils.DiscordUtils.name;
+import static net.kodehawa.mantaroself.utils.DiscordUtils.*;
 import static net.kodehawa.mantaroself.utils.StringUtils.splitArgs;
 import static net.kodehawa.mantaroself.utils.Utils.iterate;
 import static org.apache.commons.lang3.StringUtils.capitalize;
@@ -42,19 +42,21 @@ public class Mapifier {
 		//map(prefix + "me", map, guild.getSelfMember());
 	}
 
-	public static void map(String prefix, Map<String, String> map, User author, Member member) {//TODO
-		map.put(prefix, member.getAsMention());
+	public static void map(String prefix, Map<String, String> map, User author, Member member) {
+		map.put(prefix, author.getAsMention());
 		prefix = prefix + ".";
-		map.put(prefix + "username", member.getUser().getName());
-		map.put(prefix + "discriminator", member.getUser().getDiscriminator());
-		map.put(prefix + "name", member.getEffectiveName());
-		map.put(prefix + "game", member.getGame() != null ? member.getGame().getName() : "None");
-		map.put(prefix + "status", capitalize(member.getOnlineStatus().getKey()));
-		map.put(prefix + "mention", member.getAsMention());
+		map.put(prefix + "username", author.getName());
+		map.put(prefix + "discriminator", author.getDiscriminator());
+		map.put(prefix + "name", name(author, member));
+		Game game = game(author, member);
+		map.put(prefix + "game", game != null ? game.getName() : "None");
+		OnlineStatus status = status(author, member);
+		map.put(prefix + "status", capitalize((status == null ? OnlineStatus.UNKNOWN : status).getKey().toLowerCase()));
+		map.put(prefix + "mention", author.getAsMention());
 	}
 
 	public static void map(String prefix, Map<String, String> map, MessageReceivedEvent event) {
-		map.put(prefix, event.getAuthor().getAsMention() + "@" + DiscordUtils.mention(event.getChannel()));
+		map.put(prefix, event.getAuthor().getAsMention() + "@" + mention(event.getChannel()));
 		prefix = prefix + ".";
 		map(prefix + "channel", map, event.getChannel());
 		map(prefix + "guild", map, event.getGuild()); //TODO NULLABLE
@@ -72,7 +74,7 @@ public class Mapifier {
 	}
 
 	public static void map(String prefix, Map<String, String> map, MessageChannel channel) {
-		String mention = DiscordUtils.mention(channel);
+		String mention = mention(channel);
 		map.put(prefix, mention);
 		prefix = prefix + ".";
 		map.put(prefix + "mention", mention);

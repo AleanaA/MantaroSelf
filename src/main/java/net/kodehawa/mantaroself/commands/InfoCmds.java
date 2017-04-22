@@ -18,6 +18,7 @@ import net.kodehawa.mantaroself.modules.HasPostLoad;
 import net.kodehawa.mantaroself.modules.RegisterCommand;
 import net.kodehawa.mantaroself.modules.commands.Category;
 import net.kodehawa.mantaroself.modules.commands.Command;
+import net.kodehawa.mantaroself.utils.DiscordUtils;
 import net.kodehawa.mantaroself.utils.RateLimiter;
 import net.kodehawa.mantaroself.utils.Utils;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
@@ -37,6 +38,7 @@ import static net.kodehawa.mantaroself.commands.info.HelpUtils.forType;
 import static net.kodehawa.mantaroself.commands.info.StatsHelper.calculateDouble;
 import static net.kodehawa.mantaroself.commands.info.StatsHelper.calculateInt;
 import static net.kodehawa.mantaroself.data.MantaroData.data;
+import static net.kodehawa.mantaroself.utils.DiscordUtils.usersMentioned;
 
 @RegisterCommand.Class
 public class InfoCmds implements HasPostLoad {
@@ -123,13 +125,13 @@ public class InfoCmds implements HasPostLoad {
 
 	@RegisterCommand
 	public static void guildinfo(CommandRegistry cr) {
-		cr.register("serverinfo", Commands.newSimple(Category.INFO)
+		cr.register("guildinfo", Commands.newSimple(Category.INFO)
 
 			.code((thiz, event, content, args) -> {
 				TextChannel channel = event.getTextChannel();
 
 				if (channel == null) {
-					event.getChannel().sendMessage(EmoteReference.ERROR + "This command can be issued from a guild!").queue();
+					event.getChannel().sendMessage(EmoteReference.ERROR + "This command can only be issued from a guild!").queue();
 					return;
 				}
 
@@ -159,8 +161,8 @@ public class InfoCmds implements HasPostLoad {
 					.build()
 				).queue();
 			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Server Info Command")
-				.addField("Description:", "See your server's current stats.", false)
+			.help((thiz, event) -> thiz.helpEmbed(event, "Guild Info Command")
+				.addField("Description:", "See your guild's current stats.\n*Can be only issued from a Guild.*", false)
 				.setColor(event.getGuild().getOwner().getColor() == null ? Color.ORANGE : event.getGuild().getOwner().getColor())
 				.build())
 			.build());
@@ -421,36 +423,38 @@ public class InfoCmds implements HasPostLoad {
 	@RegisterCommand
 	public static void userinfo(CommandRegistry cr) {
 		cr.register("userinfo", Commands.newSimple(Category.INFO)
-
 			.code((thiz, event, content, args) -> {
-				User user = event.getMessage().getMentionedUsers().size() > 0 ? event.getMessage().getMentionedUsers().get(0) : event.getAuthor();
-				Member member = event.getGuild().getMember(user);
-				if (member == null) {
-					String name = user == null ? "Unknown User" : user.getName();
-					event.getChannel().sendMessage(EmoteReference.ERROR + "Sorry but I couldn't get " + name + "'s info. Please make sure you and that person are in the same server!").queue();
-					return;
+				List<User> mentionedUsers = usersMentioned(event.getMessage());
+				User user = mentionedUsers.size() > 0 ? mentionedUsers.get(0) : event.getAuthor();
+				Member member = event.getGuild() == null ? null : event.getGuild().getMember(user);
+
+				EmbedBuilder embed = new EmbedBuilder()
+					.setAuthor(String.format("User info for %s#%s", user.getName(), user.getDiscriminator()), null, event.getAuthor().getEffectiveAvatarUrl())
+					.setThumbnail(user.getAvatarUrl()).addField("Account Created:", user.getCreationTime().format(DateTimeFormatter.ISO_DATE).replace("Z", ""), true)
+					.setFooter("User ID: " + user.getId(), null);
+
+				Game game = DiscordUtils.game(user, member);
+				OnlineStatus status = DiscordUtils.status(user, member);
+
+				embed.addField("Playing:", game == null ? "None" : game.getName(), false)
+					.addField("Status:", Utils.capitalize((status != null ? status : OnlineStatus.UNKNOWN).getKey().toLowerCase()), true);
+
+				if (member != null) {
+					String roles = member.getRoles().stream()
+						.map(Role::getName)
+						.collect(Collectors.joining(", "));
+
+					if (roles.length() > MessageEmbed.TEXT_MAX_LENGTH)
+						roles = roles.substring(0, MessageEmbed.TEXT_MAX_LENGTH - 4) + "...";
+
+					embed.setColor(member.getColor())
+						.addField("Join Date:", member.getJoinDate().format(DateTimeFormatter.ISO_DATE).replace("Z", ""), true)
+						.addField("Voice Channel:", member.getVoiceState().getChannel() != null ? member.getVoiceState().getChannel().getName() : "None", false)
+						.addField("Color:", member.getColor() == null ? "Default" : "#" + Integer.toHexString(member.getColor().getRGB()).substring(2).toUpperCase(), true)
+						.addField("Roles: [" + String.valueOf(member.getRoles().size()) + "]", roles, true);
 				}
 
-				String roles = member.getRoles().stream()
-					.map(Role::getName)
-					.collect(Collectors.joining(", "));
-
-				if (roles.length() > MessageEmbed.TEXT_MAX_LENGTH)
-					roles = roles.substring(0, MessageEmbed.TEXT_MAX_LENGTH - 4) + "...";
-				event.getChannel().sendMessage(new EmbedBuilder()
-					.setColor(member.getColor())
-					.setAuthor(String.format("User info for %s#%s", user.getName(), user.getDiscriminator()), null, event.getAuthor().getEffectiveAvatarUrl())
-					.setThumbnail(user.getAvatarUrl())
-					.addField("Join Date:", member.getJoinDate().format(DateTimeFormatter.ISO_DATE).replace("Z", ""), true)
-					.addField("Account Created:", user.getCreationTime().format(DateTimeFormatter.ISO_DATE).replace("Z", ""), true)
-					.addField("Voice Channel:", member.getVoiceState().getChannel() != null ? member.getVoiceState().getChannel().getName() : "None", false)
-					.addField("Playing:", member.getGame() == null ? "None" : member.getGame().getName(), false)
-					.addField("Color:", member.getColor() == null ? "Default" : "#" + Integer.toHexString(member.getColor().getRGB()).substring(2).toUpperCase(), true)
-					.addField("Status:", Utils.capitalize(member.getOnlineStatus().getKey().toLowerCase()), true)
-					.addField("Roles: [" + String.valueOf(member.getRoles().size()) + "]", roles, true)
-					.setFooter("User ID: " + user.getId(), null)
-					.build()
-				).queue();
+				event.getChannel().sendMessage(embed.build()).queue();
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "UserInfo Command")
 				.addField("Description:", "See information about specific users.", false)

@@ -287,11 +287,12 @@ public class CustomCmds implements HasPostLoad {
 		new HashMap<>(data().get().custom).forEach((name, responses) -> {
 			if (CommandProcessor.REGISTRY.commands().containsKey(name) && !CommandProcessor.REGISTRY.commands().get(name).equals(customCommand)) {
 				custom.remove(name);
-				custom.put('_' + name, responses);
+				name = '_' + name;
+				custom.put(name, responses);
 			}
 
 			//add mini-hack
-			CommandProcessor.REGISTRY.commands().put('_' + name, customCommand);
+			CommandProcessor.REGISTRY.commands().put(name, customCommand);
 		});
 
 		data().save();

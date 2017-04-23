@@ -1,4 +1,4 @@
-package net.kodehawa.mantaroself.modules.commands;
+package net.kodehawa.mantaroself.modules.commands.base;
 
 public enum Category {
 	ACTION("Action"),

@@ -13,10 +13,11 @@ import net.kodehawa.lib.imageboard.konachan.main.entities.Wallpaper;
 import net.kodehawa.lib.imageboard.rule34.main.Rule34;
 import net.kodehawa.mantaroself.commands.utils.data.ImageData;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
-import net.kodehawa.mantaroself.modules.Commands;
-import net.kodehawa.mantaroself.modules.HasPostLoad;
-import net.kodehawa.mantaroself.modules.RegisterCommand;
-import net.kodehawa.mantaroself.modules.commands.Category;
+import net.kodehawa.mantaroself.modules.Event;
+import net.kodehawa.mantaroself.modules.Module;
+import net.kodehawa.mantaroself.modules.commands.Commands;
+import net.kodehawa.mantaroself.modules.commands.base.Category;
+import net.kodehawa.mantaroself.modules.events.PostLoadEvent;
 import net.kodehawa.mantaroself.utils.Utils;
 import net.kodehawa.mantaroself.utils.cache.URLCache;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
@@ -35,8 +36,8 @@ import java.util.stream.Collectors;
 
 import static net.kodehawa.mantaroself.MantaroSelf.prefix;
 
-@RegisterCommand.Class
-public class ImageCmds implements HasPostLoad {
+@Module
+public class ImageCmds {
 
 	public static final URLCache CACHE = new URLCache(20);
 	private static final String BASEURL = "http://catgirls.brussell98.tk/api/random";
@@ -57,11 +58,11 @@ public class ImageCmds implements HasPostLoad {
 	private static String tagsEncoded = "";
 	private static String tagsToEncode = "no";
 
-	@RegisterCommand
+	@Event
 	public static void cat(CommandRegistry cr) {
 		cr.register("cat", Commands.newSimple(Category.IMAGE)
 
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				try {
 					String url = Unirest.get("http://random.cat/meow").asJsonAsync().get().getBody().getObject().get("file").toString();
 					event.getChannel().sendFile(CACHE.getFile(url), "cat.jpg",
@@ -76,11 +77,11 @@ public class ImageCmds implements HasPostLoad {
 			.build());
 	}
 
-	@RegisterCommand
+	@Event
 	public static void catgirls(CommandRegistry cr) {
 		cr.register("catgirl", Commands.newSimple(Category.IMAGE)
 
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				boolean nsfw = args.length > 0 && args[0].equalsIgnoreCase("nsfw");
 
 				try {
@@ -105,11 +106,11 @@ public class ImageCmds implements HasPostLoad {
 			.build());
 	}
 
-	@RegisterCommand
+	@Event
 	public static void e621(CommandRegistry cr) {
 		cr.register("name", Commands.newSimple(Category.IMAGE)
 
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				String noArgs = content.split(" ")[0];
 				switch (noArgs) {
 					case "get":
@@ -247,11 +248,11 @@ public class ImageCmds implements HasPostLoad {
 		}
 	}
 
-	@RegisterCommand
+	@Event
 	public static void kona(CommandRegistry cr) {
 		cr.register("konachan", Commands.newSimple(Category.IMAGE)
 
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				MessageChannel channel = event.getChannel();
 
 				String noArgs = content.split(" ")[0];
@@ -347,11 +348,18 @@ public class ImageCmds implements HasPostLoad {
 			.build());
 	}
 
-	@RegisterCommand
+	@Event
+	public static void onPostLoad(PostLoadEvent event) {
+		nRating.put("safe", "s");
+		nRating.put("questionable", "q");
+		nRating.put("explicit", "e");
+	}
+
+	@Event
 	public static void rule34(CommandRegistry cr) {
 		cr.register("rule34", Commands.newSimple(Category.IMAGE)
 
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 
 				String noArgs = content.split(" ")[0];
 				switch (noArgs) {
@@ -450,11 +458,11 @@ public class ImageCmds implements HasPostLoad {
 			.build());
 	}
 
-	@RegisterCommand
+	@Event
 	public static void yandere(CommandRegistry cr) {
 		cr.register("yandere", Commands.newSimple(Category.IMAGE)
 
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				rating = "s";
 				needRating = args.length >= 3;
 				smallRequest = args.length <= 1;
@@ -513,12 +521,5 @@ public class ImageCmds implements HasPostLoad {
 					+ "rating: (OPTIONAL) Can be either safe, questionable or explicit, depends on the type of image you want to get.")
 				.build())
 			.build());
-	}
-
-	@Override
-	public void onPostLoad() {
-		nRating.put("safe", "s");
-		nRating.put("questionable", "q");
-		nRating.put("explicit", "e");
 	}
 }

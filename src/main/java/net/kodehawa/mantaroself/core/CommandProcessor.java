@@ -13,7 +13,7 @@ public class CommandProcessor {
 	public static final CommandRegistry REGISTRY = new CommandRegistry();
 
 	public boolean run(MessageReceivedEvent event) {
-		if (MantaroSelf.getLoadStatus() != LoadState.POSTLOAD) return false;
+		if (MantaroSelf.status() != LoadState.POSTLOAD) return false;
 
 		String rawCmd = event.getMessage().getRawContent();
 		String prefix = MantaroData.config().get().prefix();

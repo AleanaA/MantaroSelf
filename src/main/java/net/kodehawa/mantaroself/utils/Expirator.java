@@ -20,7 +20,6 @@ public class Expirator<T extends Expirable> {
 	private boolean updated = false;
 
 	public Expirator() {
-
 		Thread thread = new Thread(this::threadcode, "ExpirationManager Thread");
 		thread.setDaemon(true);
 		thread.start();

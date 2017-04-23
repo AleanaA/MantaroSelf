@@ -2,8 +2,8 @@ package net.kodehawa.mantaroself.commands.action;
 
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.kodehawa.mantaroself.modules.commands.Category;
 import net.kodehawa.mantaroself.modules.commands.NoArgsCommand;
+import net.kodehawa.mantaroself.modules.commands.base.Category;
 
 import java.util.List;
 

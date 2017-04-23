@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,14 +43,6 @@ public class Utils {
 	public static String capitalize(String s) {
 		if (s.length() == 0) return s;
 		return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
-	}
-
-	public static String getDurationMinutes(long length) {
-		return String.format("%d:%02d minutes",
-			TimeUnit.MILLISECONDS.toMinutes(length),
-			TimeUnit.MILLISECONDS.toSeconds(length) -
-				TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(length))
-		);
 	}
 
 	/**

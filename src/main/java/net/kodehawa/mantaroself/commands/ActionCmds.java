@@ -1,16 +1,17 @@
 package net.kodehawa.mantaroself.commands;
 
-import br.com.brjdevs.java.utils.extensions.CollectionUtils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.IMentionable;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.kodehawa.mantaroself.commands.action.ImageActionCmd;
 import net.kodehawa.mantaroself.commands.action.TextActionCmd;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
-import net.kodehawa.mantaroself.modules.Commands;
-import net.kodehawa.mantaroself.modules.RegisterCommand;
-import net.kodehawa.mantaroself.modules.commands.Category;
+import net.kodehawa.mantaroself.modules.Event;
+import net.kodehawa.mantaroself.modules.Module;
+import net.kodehawa.mantaroself.modules.commands.Commands;
+import net.kodehawa.mantaroself.modules.commands.base.Category;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 import net.kodehawa.mantaroself.utils.data.DataManager;
 import net.kodehawa.mantaroself.utils.data.SimpleFileDataManager;
@@ -18,21 +19,24 @@ import net.kodehawa.mantaroself.utils.data.SimpleFileDataManager;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static br.com.brjdevs.java.utils.extensions.CollectionUtils.random;
 import static net.kodehawa.mantaroself.MantaroSelf.prefix;
+import static net.kodehawa.mantaroself.utils.DiscordUtils.usersMentioned;
 
-@RegisterCommand.Class
+@Module
 public class ActionCmds {
 	public static final DataManager<List<String>> BLEACH = new SimpleFileDataManager("assets/mantaroself/gifs/bleach.txt");
 	public static final DataManager<List<String>> GREETINGS = new SimpleFileDataManager("assets/mantaroself/texts/greetings.txt");
 	public static final DataManager<List<String>> HUGS = new SimpleFileDataManager("assets/mantaroself/gifs/hugs.txt");
 	public static final DataManager<List<String>> KISSES = new SimpleFileDataManager("assets/mantaroself/gifs/kisses.txt");
+	public static final DataManager<List<String>> NOBLE = new SimpleFileDataManager("assets/mantaroself/texts/noble.txt");
 	public static final DataManager<List<String>> PATS = new SimpleFileDataManager("assets/mantaroself/gifs/pats.txt");
 	public static final DataManager<List<String>> TSUNDERE = new SimpleFileDataManager("assets/mantaroself/texts/tsundere.txt");
 
-	@RegisterCommand
+	@Event
 	public static void action(CommandRegistry cr) {
 		cr.register("action", Commands.newSimple(Category.ACTION)
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				String noArgs = content.split(" ")[0];
 				MessageChannel channel = event.getChannel();
 				switch (noArgs) {
@@ -43,7 +47,10 @@ public class ActionCmds {
 						channel.sendMessage("http://puu.sh/rK7t2/330182c282.gif").queue();
 						break;
 					case "bleach":
-						channel.sendMessage(CollectionUtils.random(BLEACH.get())).queue();
+						channel.sendMessage(random(BLEACH.get())).queue();
+						break;
+					case "noble":
+						channel.sendMessage(EmoteReference.TALKING + random(NOBLE.get()) + " -Noble").queue();
 						break;
 					default:
 						thiz.onHelp(event);
@@ -51,23 +58,26 @@ public class ActionCmds {
 			})
 			.help((thiz, event) ->
 				thiz.helpEmbed(event, "Action commands")
-					.addField("Description:", prefix() + "action bleach: Random image of someone drinking bleach.\n" +
+					.setDescription("**Usage**\n" +
+						prefix() + "action bleach: Random image of someone drinking bleach.\n" +
 						prefix() + "action facedesk: Facedesks.\n" +
-						prefix() + "action nom: nom nom.", false)
-					.build()
+						prefix() + "action nom: nom nom.\n" +
+						prefix() + "misc noble: Random Lost Pause quote."
+					).build()
 			)
 			.build());
 	}
 
-	@RegisterCommand
+	@Event
 	public static void bloodsuck(CommandRegistry cr) {
 		cr.register("bloodsuck", Commands.newSimple(Category.ACTION)
 
-			.code((thiz, event, content, args) -> {
-				if (event.getMessage().getMentionedUsers().isEmpty()) {
+			.onCall((thiz, event, content, args) -> {
+				List<User> mentionedUsers = usersMentioned(event.getMessage());
+				if (mentionedUsers.isEmpty()) {
 					event.getChannel().sendFile(ImageActionCmd.CACHE.getInput("http://imgur.com/ZR8Plmd.png"), "suck.png", null).queue();
 				} else {
-					String bString = event.getMessage().getMentionedUsers().stream().map(IMentionable::getAsMention).collect(Collectors
+					String bString = mentionedUsers.stream().map(IMentionable::getAsMention).collect(Collectors
 						.joining(" "));
 					String bs = String.format(EmoteReference.TALKING + "%s sucks the blood of %s", event.getAuthor().getAsMention(),
 						bString);
@@ -81,12 +91,12 @@ public class ActionCmds {
 			.build());
 	}
 
-	@RegisterCommand
+	@Event
 	public static void lewd(CommandRegistry cr) {
 		cr.register("lewd", Commands.newSimple(Category.ACTION)
 
-			.code((thiz, event, content, args) -> {
-				String lood = event.getMessage().getMentionedUsers().stream().map(IMentionable::getAsMention).collect(Collectors.joining
+			.onCall((thiz, event, content, args) -> {
+				String lood = usersMentioned(event.getMessage()).stream().map(IMentionable::getAsMention).collect(Collectors.joining
 					(" "));
 				event.getChannel().sendFile(ImageActionCmd.CACHE.getInput("http://imgur.com/LJfZYau.png"), "lewd.png"
 					, new MessageBuilder().append(lood).append(" Y-You lewdie!").build()).queue();
@@ -96,14 +106,15 @@ public class ActionCmds {
 			.build());
 	}
 
-	@RegisterCommand
+	@Event
 	public static void meow(CommandRegistry cr) {
 		cr.register("mew", Commands.newSimple(Category.ACTION)
 
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				Message receivedMessage = event.getMessage();
-				if (!receivedMessage.getMentionedUsers().isEmpty()) {
-					String mew = event.getMessage().getMentionedUsers().stream().map(IMentionable::getAsMention).collect(Collectors.joining(" "));
+				List<User> mentionedUsers = usersMentioned(receivedMessage);
+				if (!mentionedUsers.isEmpty()) {
+					String mew = mentionedUsers.stream().map(IMentionable::getAsMention).collect(Collectors.joining(" "));
 					event.getChannel().sendFile(ImageActionCmd.CACHE.getInput("http://imgur.com/yFGHvVR.gif"), "mew.gif",
 						new MessageBuilder().append(EmoteReference.TALKING).append(String.format("*meows at %s.*", mew)).build()).queue();
 				} else {
@@ -117,7 +128,7 @@ public class ActionCmds {
 			.build());
 	}
 
-	@RegisterCommand
+	@Event
 	public static void register(CommandRegistry cr) {
 
 		//pat();

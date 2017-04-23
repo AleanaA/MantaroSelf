@@ -5,9 +5,9 @@ import com.google.common.base.Preconditions;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.kodehawa.mantaroself.modules.commands.Category;
-import net.kodehawa.mantaroself.modules.commands.Command;
 import net.kodehawa.mantaroself.modules.commands.SimpleCommand;
+import net.kodehawa.mantaroself.modules.commands.base.Category;
+import net.kodehawa.mantaroself.modules.commands.base.Command;
 import net.kodehawa.mantaroself.utils.QuadConsumer;
 
 import java.util.function.BiConsumer;
@@ -19,7 +19,6 @@ public class SimpleCommandBuilder {
 	private final Category category;
 	private QuadConsumer<SimpleCommand, MessageReceivedEvent, String, String[]> code;
 	private BiFunction<SimpleCommand, MessageReceivedEvent, MessageEmbed> help;
-	private boolean hidden = false;
 	private Function<String, String[]> splitter;
 
 	public SimpleCommandBuilder(Category category) {
@@ -30,17 +29,15 @@ public class SimpleCommandBuilder {
 		Preconditions.checkNotNull(code, "code");
 		if (help == null)
 			help = (t, e) -> new EmbedBuilder().setDescription("No help available for this command").build();
-		return new SimpleCommand() {
+		return new SimpleCommand(category) {
 			@Override
-			public void call(MessageReceivedEvent event, String cmdname, String[] args) {
-				code.accept(this, event, cmdname, args);
+			public void call(MessageReceivedEvent event, String content, String[] args) {
+				code.accept(this, event, content, args);
 			}
 
 			@Override
 			public String[] splitArgs(String content) {
-				if (splitter == null)
-					return SimpleCommand.super.splitArgs(content);
-				return splitter.apply(content);
+				return splitter == null ? super.splitArgs(content) : splitter.apply(content);
 			}
 
 			@Override
@@ -52,35 +49,7 @@ public class SimpleCommandBuilder {
 			public MessageEmbed help(MessageReceivedEvent event) {
 				return help.apply(this, event);
 			}
-
-			@Override
-			public boolean hidden() {
-				return hidden;
-			}
 		};
-	}
-
-	public SimpleCommandBuilder code(QuadConsumer<SimpleCommand, MessageReceivedEvent, String, String[]> code) {
-		this.code = Preconditions.checkNotNull(code, "code");
-		return this;
-	}
-
-	public SimpleCommandBuilder code(TriConsumer<MessageReceivedEvent, String, String[]> code) {
-		Preconditions.checkNotNull(code, "code");
-		this.code = (thiz, event, name, args) -> code.accept(event, name, args);
-		return this;
-	}
-
-	public SimpleCommandBuilder code(BiConsumer<MessageReceivedEvent, String[]> code) {
-		Preconditions.checkNotNull(code, "code");
-		this.code = (thiz, event, name, args) -> code.accept(event, args);
-		return this;
-	}
-
-	public SimpleCommandBuilder code(Consumer<MessageReceivedEvent> code) {
-		Preconditions.checkNotNull(code, "code");
-		this.code = (thiz, event, name, args) -> code.accept(event);
-		return this;
 	}
 
 	public SimpleCommandBuilder help(BiFunction<SimpleCommand, MessageReceivedEvent, MessageEmbed> help) {
@@ -94,8 +63,26 @@ public class SimpleCommandBuilder {
 		return this;
 	}
 
-	public SimpleCommandBuilder hidden(boolean hidden) {
-		this.hidden = hidden;
+	public SimpleCommandBuilder onCall(BiConsumer<MessageReceivedEvent, String[]> code) {
+		Preconditions.checkNotNull(code, "code");
+		this.code = (thiz, event, content, args) -> code.accept(event, args);
+		return this;
+	}
+
+	public SimpleCommandBuilder onCall(Consumer<MessageReceivedEvent> code) {
+		Preconditions.checkNotNull(code, "code");
+		this.code = (thiz, event, content, args) -> code.accept(event);
+		return this;
+	}
+
+	public SimpleCommandBuilder onCall(QuadConsumer<SimpleCommand, MessageReceivedEvent, String, String[]> code) {
+		this.code = Preconditions.checkNotNull(code, "code");
+		return this;
+	}
+
+	public SimpleCommandBuilder onCall(TriConsumer<MessageReceivedEvent, String, String[]> code) {
+		Preconditions.checkNotNull(code, "code");
+		this.code = (thiz, event, content, args) -> code.accept(event, content, args);
 		return this;
 	}
 

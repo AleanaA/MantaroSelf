@@ -4,24 +4,25 @@ import br.com.brjdevs.java.utils.extensions.Async;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
-import net.kodehawa.mantaroself.modules.Commands;
-import net.kodehawa.mantaroself.modules.RegisterCommand;
-import net.kodehawa.mantaroself.modules.commands.Category;
-import net.kodehawa.mantaroself.modules.commands.SimpleCommandCompat;
+import net.kodehawa.mantaroself.modules.Event;
+import net.kodehawa.mantaroself.modules.Module;
+import net.kodehawa.mantaroself.modules.commands.Commands;
+import net.kodehawa.mantaroself.modules.commands.SimpleCommand;
+import net.kodehawa.mantaroself.modules.commands.base.Category;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@RegisterCommand.Class
+@Module
 public class FunCmds {
 
-	@RegisterCommand
+	@Event
 	public static void coinflip(CommandRegistry cr) {
 		cr.register("coinflip", Commands.newSimple(Category.FUN)
 
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				int times;
 				if (args.length == 0 || content.length() == 0) times = 1;
 				else {
@@ -55,11 +56,11 @@ public class FunCmds {
 			.build());
 	}
 
-	@RegisterCommand
+	@Event
 	public static void dice(CommandRegistry cr) {
 		cr.register("roll", Commands.newSimple(Category.FUN)
 
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				int roll;
 				try {
 					roll = Integer.parseInt(args[0]);
@@ -89,11 +90,11 @@ public class FunCmds {
 		return num;
 	}
 
-	@RegisterCommand
+	@Event
 	public static void troll(CommandRegistry registry) {
 		List<Thread> trollThreads = new ArrayList<>();
 
-		registry.register("troll", new SimpleCommandCompat(Category.FUN) {
+		registry.register("troll", new SimpleCommand(Category.FUN) {
 			@Override
 			public void call(MessageReceivedEvent event, String content, String[] args) {
 				if (args.length < 1) {

@@ -47,7 +47,7 @@ public class DiscordUtils {
 		List<Guild> mutualGuilds = user.getJDA().getMutualGuilds(user);
 		if (!mutualGuilds.isEmpty()) return mutualGuilds.get(0).getMember(user).getGame();
 
-		Friend friend = MantaroSelf.getInstance().asClient().getFriend(user);
+		Friend friend = MantaroSelf.instance().asClient().getFriend(user);
 		if (friend != null) return friend.getGame();
 
 		return null;
@@ -124,10 +124,10 @@ public class DiscordUtils {
 		List<Guild> mutualGuilds = user.getJDA().getMutualGuilds(user);
 		if (!mutualGuilds.isEmpty()) return mutualGuilds.get(0).getMember(user).getOnlineStatus();
 
-		Friend friend = MantaroSelf.getInstance().asClient().getFriend(user);
+		Friend friend = MantaroSelf.instance().asClient().getFriend(user);
 		if (friend != null) return friend.getOnlineStatus();
 
-		return null;
+		return OnlineStatus.UNKNOWN;
 	}
 
 	public static List<User> usersMentioned(Message message) {
@@ -143,7 +143,8 @@ public class DiscordUtils {
 				}
 			}).filter(Objects::nonNull)
 			.mapToLong(Long::longValue)
-			.mapToObj(MantaroSelf.getInstance()::getUserById)
+			.mapToObj(MantaroSelf.instance()::getUserById)
+			.filter(Objects::nonNull)
 			.collect(Collectors.toList());
 	}
 }

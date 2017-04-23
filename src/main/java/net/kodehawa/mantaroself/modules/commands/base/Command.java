@@ -1,13 +1,16 @@
-package net.kodehawa.mantaroself.modules.commands;
+package net.kodehawa.mantaroself.modules.commands.base;
 
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * Interface used for handling commands within the bot.
+ */
 public interface Command {
 	/**
 	 * The Command's {@link Category}
 	 *
-	 * @return a Nullable {@link Category}
+	 * @return a Nullable {@link Category}. Null means that the command should be hidden from Help.
 	 */
 	Category category();
 
@@ -27,13 +30,4 @@ public interface Command {
 	 * @param content     the arguments of the command
 	 */
 	void run(MessageReceivedEvent event, String commandName, String content);
-
-	/**
-	 * Hides the command from the help command
-	 *
-	 * @return true if the command shouldn't be visible at the help command, false otherwise.
-	 */
-	default boolean hidden() {
-		return false;
-	}
 }

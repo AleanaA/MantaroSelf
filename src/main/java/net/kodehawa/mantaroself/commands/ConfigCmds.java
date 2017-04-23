@@ -11,10 +11,11 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.MantaroSelf;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
-import net.kodehawa.mantaroself.modules.RegisterCommand;
-import net.kodehawa.mantaroself.modules.commands.Category;
+import net.kodehawa.mantaroself.modules.Event;
+import net.kodehawa.mantaroself.modules.Module;
 import net.kodehawa.mantaroself.modules.commands.NoArgsCommand;
-import net.kodehawa.mantaroself.modules.commands.SimpleCommandCompat;
+import net.kodehawa.mantaroself.modules.commands.SimpleCommand;
+import net.kodehawa.mantaroself.modules.commands.base.Category;
 import net.kodehawa.mantaroself.utils.Utils;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 
@@ -25,13 +26,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static br.com.brjdevs.java.utils.extensions.CollectionUtils.random;
 import static net.kodehawa.mantaroself.MantaroSelf.prefix;
 import static net.kodehawa.mantaroself.data.MantaroData.data;
 import static net.kodehawa.mantaroself.utils.StringUtils.SPLIT_PATTERN;
 
-@RegisterCommand.Class
+@Module
 @Slf4j
 public class ConfigCmds {
 	public abstract static class Evaluator {
@@ -53,7 +55,7 @@ public class ConfigCmds {
 
 	}
 
-	@RegisterCommand
+	@Event
 	public static void eval(CommandRegistry registry) {
 		Map<String, Evaluator> evaluators = new HashMap<>();
 
@@ -123,7 +125,7 @@ public class ConfigCmds {
 			}
 		});
 
-		registry.register("eval", new SimpleCommandCompat(Category.UTILS) {
+		registry.register("eval", new SimpleCommand(Category.UTILS) {
 			@Override
 			public void call(MessageReceivedEvent event, String content, String[] args) {
 				if (args.length < 2) {
@@ -169,9 +171,9 @@ public class ConfigCmds {
 		});
 	}
 
-	@RegisterCommand
+	@Event
 	public static void setters(CommandRegistry registry) {
-		registry.register("game", new SimpleCommandCompat(Category.SELF) {
+		registry.register("game", new SimpleCommand(Category.SELF) {
 
 			@Override
 			public Category category() {
@@ -217,7 +219,12 @@ public class ConfigCmds {
 
 			@Override
 			public MessageEmbed help(MessageReceivedEvent event) {
-				return null;
+				return helpEmbed(event, "Game Command")
+					.setDescription("**Usage**:\n" +
+						prefix() + "game set <game>: Sets a game\n" +
+						prefix() + "game stream <game>: Sets your game to a Stream\n" +
+						prefix() + "game clear: Clears your game")
+					.build();
 			}
 
 			@Override
@@ -241,14 +248,24 @@ public class ConfigCmds {
 
 			@Override
 			public MessageEmbed help(MessageReceivedEvent event) {
-				return null;
+				return helpEmbed(event, "Presence Command")
+					.setDescription("Set the Selfbot's Presence.\n" +
+						"**Usage**\n" +
+						prefix() + "presence <" +
+						Stream.of(OnlineStatus.values())
+							.filter(s -> s != OnlineStatus.UNKNOWN)
+							.map(OnlineStatus::getKey)
+							.collect(Collectors.joining("/")) +
+						">"
+					)
+					.build();
 			}
 		});
 	}
 
-	@RegisterCommand
+	@Event
 	public static void shutdown(CommandRegistry registry) {
-		registry.register("shutdown", new SimpleCommandCompat(Category.UTILS) {
+		registry.register("shutdown", new SimpleCommand(Category.UTILS) {
 			@Override
 			public void call(MessageReceivedEvent event, String content, String[] args) {
 				if (!content.equals("force")) {
@@ -259,7 +276,7 @@ public class ConfigCmds {
 
 						event.getMessage().delete().complete();
 
-						MantaroSelf.getInstance().shutdown(true);
+						MantaroSelf.instance().shutdown(true);
 					} catch (Exception e) {
 						log.warn(EmoteReference.ERROR + "Couldn't prepare shutdown." + e.toString(), e);
 						return;

@@ -1,5 +1,6 @@
 package net.kodehawa.mantaroself.commands.custom;
 
+import net.dv8tion.jda.client.entities.Group;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -60,9 +61,18 @@ public class Mapifier {
 		prefix = prefix + ".";
 		map(prefix + "channel", map, event.getChannel());
 		if (event.getGuild() != null) map(prefix + "guild", map, event.getGuild());
+		if (event.getGroup() != null) map(prefix + "group", map, event.getGroup());
 		map(prefix + "me", map, event.getJDA().getSelfUser(), event.getGuild().getSelfMember());
 		map(prefix + "author", map, event.getAuthor(), event.getMember());
 		map(prefix + "message", map, event.getMessage());
+	}
+
+	public static void map(String prefix, Map<String, String> map, Group group) {
+		String name = name(group);
+		map.put(prefix, name);
+		prefix = prefix + ".";
+		map.put(prefix + "name", name);
+		map(prefix + "owner", map, group.getOwner(), null);
 	}
 
 	public static void map(String prefix, Map<String, String> map, Message message) {

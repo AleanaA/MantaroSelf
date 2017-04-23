@@ -2,7 +2,7 @@ package net.kodehawa.mantaroself.modules;
 
 import com.google.common.base.Preconditions;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.kodehawa.mantaroself.modules.commands.Command;
+import net.kodehawa.mantaroself.modules.commands.base.Command;
 
 import java.util.HashMap;
 import java.util.Map;

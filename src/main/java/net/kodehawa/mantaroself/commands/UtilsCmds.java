@@ -10,13 +10,12 @@ import net.kodehawa.mantaroself.commands.utils.data.UrbanData;
 import net.kodehawa.mantaroself.commands.utils.data.WeatherData;
 import net.kodehawa.mantaroself.commands.utils.data.YoutubeMp3Info;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
-import net.kodehawa.mantaroself.modules.Commands;
-import net.kodehawa.mantaroself.modules.RegisterCommand;
-import net.kodehawa.mantaroself.modules.commands.Category;
-import net.kodehawa.mantaroself.modules.commands.SimpleCommandCompat;
-import net.kodehawa.mantaroself.utils.DiscordUtils;
-import net.kodehawa.mantaroself.utils.StringUtils;
-import net.kodehawa.mantaroself.utils.Utils;
+import net.kodehawa.mantaroself.modules.Event;
+import net.kodehawa.mantaroself.modules.Module;
+import net.kodehawa.mantaroself.modules.commands.Commands;
+import net.kodehawa.mantaroself.modules.commands.SimpleCommand;
+import net.kodehawa.mantaroself.modules.commands.base.Category;
+import net.kodehawa.mantaroself.utils.*;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 import net.kodehawa.mantaroself.utils.data.GsonDataManager;
 import org.json.JSONArray;
@@ -31,31 +30,34 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.function.IntConsumer;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static br.com.brjdevs.java.utils.extensions.CollectionUtils.random;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.kodehawa.mantaroself.MantaroSelf.prefix;
 import static net.kodehawa.mantaroself.data.MantaroData.config;
+import static net.kodehawa.mantaroself.utils.URLEncoding.decode;
+import static net.kodehawa.mantaroself.utils.URLEncoding.encode;
+import static org.apache.commons.lang3.StringUtils.replaceEach;
+import static org.apache.commons.lang3.StringUtils.reverse;
 
 @Slf4j
-@RegisterCommand.Class
+@Module
 public class UtilsCmds {
-	private static final Resty resty = new Resty();
+	private static final String[] HEX_LETTERS = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
 
-	@RegisterCommand
+	@Event
 	public static void choose(CommandRegistry registry) {
-		registry.register("choose", new SimpleCommandCompat(Category.UTILS) {
+		registry.register("choose", new SimpleCommand(Category.UTILS) {
 			@Override
 			public void call(MessageReceivedEvent event, String content, String[] args) {
 				event.getChannel().sendMessage("I choose ``" + random(args) + "``").queue();
-			}
-
-			@Override
-			public String[] splitArgs(String content) {
-				return StringUtils.advancedSplitArgs(content, -1);
 			}
 
 			@Override
@@ -65,6 +67,12 @@ public class UtilsCmds {
 						"It accepts all parameters it gives (Also in quotes) and chooses a random one.")
 					.build();
 			}
+
+			@Override
+			public String[] splitArgs(String content) {
+				return StringUtils.advancedSplitArgs(content, -1);
+			}
+
 		});
 	}
 
@@ -76,11 +84,10 @@ public class UtilsCmds {
 		return DateFormat.getInstance().format(date1);
 	}
 
-	@RegisterCommand
+	@Event
 	public static void googleSearch(CommandRegistry cr) {
 		cr.register("google", Commands.newSimple(Category.UTILS)
-
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				StringBuilder b = new StringBuilder();
 				EmbedBuilder builder = new EmbedBuilder();
 				List<Crawler.SearchResult> result = Crawler.get(content);
@@ -107,11 +114,14 @@ public class UtilsCmds {
 			.build());
 	}
 
-	@RegisterCommand
+	private static String randomColor() {
+		return IntStream.range(0, 6).mapToObj(i -> random(HEX_LETTERS)).collect(Collectors.joining());
+	}
+
+	@Event
 	public static void time(CommandRegistry cr) {
 		cr.register("time", Commands.newSimple(Category.UTILS)
-
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				try {
 					if (content.startsWith("GMT")) {
 						event.getChannel().sendMessage(EmoteReference.MEGA + "It's " + dateGMT(content) + " in the " + content + " " +
@@ -131,11 +141,12 @@ public class UtilsCmds {
 			.build());
 	}
 
-	@RegisterCommand
+	@Event
 	public static void translate(CommandRegistry cr) {
-		cr.register("translate", Commands.newSimple(Category.UTILS)
+		Resty resty = new Resty().identifyAsMozilla();
 
-			.code((thiz, event, content, args) -> {
+		cr.register("translate", Commands.newSimple(Category.UTILS)
+			.onCall((thiz, event, content, args) -> {
 				try {
 					MessageChannel channel = event.getChannel();
 
@@ -143,13 +154,8 @@ public class UtilsCmds {
 						String sourceLang = args[0];
 						String targetLang = args[1];
 						String textToEncode = content.replace(args[0] + " " + args[1] + " ", "");
-						String textEncoded = "";
+						String textEncoded = URLEncoding.encode(textToEncode);
 						String translatorUrl2;
-
-						try {
-							textEncoded = URLEncoder.encode(textToEncode, "UTF-8");
-						} catch (UnsupportedEncodingException ignored) {
-						}
 
 						String translatorUrl = String.format("https://translate.google.com/translate_a/" +
 								"single?client=at&dt=t&dt=ld&dt=qca&dt=rm&dt=bd&dj=1&hl=es-ES&ie=UTF-8&oe=UTF-8&inputm=2" +
@@ -157,7 +163,7 @@ public class UtilsCmds {
 							textEncoded);
 
 						try {
-							resty.identifyAsMozilla();
+
 							translatorUrl2 = resty.text(translatorUrl).toString();
 							JSONArray data = new JSONObject(translatorUrl2).getJSONArray("sentences");
 
@@ -192,11 +198,10 @@ public class UtilsCmds {
 			.build());
 	}
 
-	@RegisterCommand
+	@Event
 	public static void urban(CommandRegistry cr) {
 		cr.register("urban", Commands.newSimple(Category.UTILS)
-
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				String beheadedSplit[] = content.split("->");
 				EmbedBuilder embed = new EmbedBuilder();
 
@@ -265,7 +270,28 @@ public class UtilsCmds {
 			.build());
 	}
 
-	@RegisterCommand
+	@Event
+	public static void utils(CommandRegistry registry) {
+		Map<String, UnaryOperator<String>> utils = new MapObject<String, UnaryOperator<String>>()
+			.with("reverse", s -> "**Reversed**: " + replaceEach(reverse(s), new String[]{"@everyone", "@here"}, new String[]{"@\\everyone", "@\\here"}))
+			.with("randomcolor", s -> "**Random Color**: #" + randomColor())
+			.with("urlencode", s -> "**URL-Encoded**: ``" + encode(s) + "``")
+			.with("urldecode", s -> "**URL-Decoded**: ``" + decode(s) + "``");
+
+		registry.register("utils", new SimpleCommand(Category.UTILS) {
+			@Override
+			public void call(MessageReceivedEvent event, String content, String[] args) {
+
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return null;
+			}
+		});
+	}
+
+	@Event
 	public static void weather(CommandRegistry cr) {
 		if (config().get().weatherAppId() == null) {
 			log.info("OpenWeatherMap AppId not defined. Weather Command will not load.");
@@ -273,7 +299,7 @@ public class UtilsCmds {
 		}
 
 		cr.register("weather", Commands.newSimple(Category.FUN)
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				if (content.isEmpty()) {
 					thiz.onHelp(event);
 					return;
@@ -330,11 +356,10 @@ public class UtilsCmds {
 			.build());
 	}
 
-	@RegisterCommand
+	@Event
 	public static void ytmp3(CommandRegistry cr) {
 		cr.register("ytmp3", Commands.newSimple(Category.FUN)
-
-			.code((thiz, event, content, args) -> {
+			.onCall((thiz, event, content, args) -> {
 				YoutubeMp3Info info = YoutubeMp3Info.forLink(content);
 
 				if (info == null) {

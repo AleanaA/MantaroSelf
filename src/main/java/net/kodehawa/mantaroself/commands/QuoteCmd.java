@@ -5,9 +5,9 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.data.Data.Quote;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
-import net.kodehawa.mantaroself.modules.RegisterCommand;
-import net.kodehawa.mantaroself.modules.commands.Category;
-import net.kodehawa.mantaroself.modules.commands.SimpleCommandCompat;
+import net.kodehawa.mantaroself.modules.Module;
+import net.kodehawa.mantaroself.modules.commands.SimpleCommand;
+import net.kodehawa.mantaroself.modules.commands.base.Category;
 
 import java.util.List;
 
@@ -16,12 +16,12 @@ import static net.kodehawa.mantaroself.data.MantaroData.data;
 import static net.kodehawa.mantaroself.utils.StringUtils.SPLIT_PATTERN;
 
 @Slf4j
-@RegisterCommand.Class
+@Module
 public class QuoteCmd {
 	//@RegisterCommand
 	public static void quote(CommandRegistry registry) {
 
-		registry.register("quote", new SimpleCommandCompat(Category.UTILS) {
+		registry.register("quote", new SimpleCommand(Category.UTILS) {
 			@Override
 			public void call(MessageReceivedEvent event, String content, String[] args) {
 				if (args.length < 1) {

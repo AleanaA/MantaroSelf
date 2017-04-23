@@ -8,11 +8,13 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.commands.custom.EmbedJSON;
 import net.kodehawa.mantaroself.core.CommandProcessor;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
-import net.kodehawa.mantaroself.modules.HasPostLoad;
-import net.kodehawa.mantaroself.modules.RegisterCommand;
-import net.kodehawa.mantaroself.modules.commands.Category;
-import net.kodehawa.mantaroself.modules.commands.Command;
-import net.kodehawa.mantaroself.modules.commands.SimpleCommandCompat;
+import net.kodehawa.mantaroself.modules.Event;
+import net.kodehawa.mantaroself.modules.Module;
+import net.kodehawa.mantaroself.modules.commands.SimpleCommand;
+import net.kodehawa.mantaroself.modules.commands.base.AbstractCommand;
+import net.kodehawa.mantaroself.modules.commands.base.Category;
+import net.kodehawa.mantaroself.modules.commands.base.Command;
+import net.kodehawa.mantaroself.modules.events.PostLoadEvent;
 import net.kodehawa.mantaroself.utils.DiscordUtils;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 import net.kodehawa.mantaroself.utils.data.GsonDataManager;
@@ -32,16 +34,11 @@ import static net.kodehawa.mantaroself.utils.StringUtils.SPLIT_PATTERN;
 import static net.kodehawa.mantaroself.utils.Utils.optional;
 
 @Slf4j
-@RegisterCommand.Class
+@Module
 //This will keep being SCC.
-public class CustomCmds implements HasPostLoad {
-	private static final Command customCommand = new Command() {
+public class CustomCmds {
+	private static final Command customCommand = new AbstractCommand(null) {
 		private Random r = new Random();
-
-		@Override
-		public Category category() {
-			return null;
-		}
 
 		@Override
 		public MessageEmbed help(MessageReceivedEvent event) {
@@ -106,19 +103,13 @@ public class CustomCmds implements HasPostLoad {
 			}
 			log("custom command");
 		}
-
-		@Override
-		public boolean hidden() {
-			return true;
-		}
-
 	};
 
-	@RegisterCommand
+	@Event
 	public static void custom(CommandRegistry cr) {
 		Pattern addPattern = Pattern.compile(";", Pattern.LITERAL);
 
-		cr.register("custom", new SimpleCommandCompat(Category.UTILS) {
+		cr.register("custom", new SimpleCommand(Category.UTILS) {
 			@Override
 			public void call(MessageReceivedEvent event, String content, String[] args) {
 				if (args.length < 1) {
@@ -279,8 +270,8 @@ public class CustomCmds implements HasPostLoad {
 		});
 	}
 
-	@Override
-	public void onPostLoad() {
+	@Event
+	public static void onPostLoad(PostLoadEvent event) {
 		Map<String, List<String>> custom = data().get().custom;
 
 		//We create a new HashMap to work-around any CME

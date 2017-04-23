@@ -5,8 +5,8 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.IMentionable;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.kodehawa.mantaroself.modules.commands.Category;
 import net.kodehawa.mantaroself.modules.commands.NoArgsCommand;
+import net.kodehawa.mantaroself.modules.commands.base.Category;
 import net.kodehawa.mantaroself.utils.cache.URLCache;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static br.com.brjdevs.java.utils.extensions.CollectionUtils.random;
+import static net.kodehawa.mantaroself.utils.DiscordUtils.usersMentioned;
 
 @Slf4j
 public class ImageActionCmd extends NoArgsCommand {
@@ -64,6 +65,6 @@ public class ImageActionCmd extends NoArgsCommand {
 	}
 
 	private String mentions(MessageReceivedEvent event) {
-		return event.getMessage().getMentionedUsers().stream().map(IMentionable::getAsMention).collect(Collectors.joining(" ")).trim();
+		return usersMentioned(event.getMessage()).stream().map(IMentionable::getAsMention).collect(Collectors.joining(" ")).trim();
 	}
 }

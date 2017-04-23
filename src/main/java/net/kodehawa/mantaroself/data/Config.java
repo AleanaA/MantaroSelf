@@ -47,11 +47,13 @@ public class Config {
 		return Cleverbot.User;
 	}
 
-	public void ensureNonNull() {
+	public Config ensureNonNull() {
 		if (AniList == null) AniList = new AniList();
 		if (Bot == null) Bot = new Bot();
 		if (Cleverbot == null) Cleverbot = new Cleverbot();
 		if (Weather == null) Weather = new Weather();
+
+		return this;
 	}
 
 	public String prefix() {

@@ -43,8 +43,7 @@ public class Expirator<T extends Expirable> {
 						wait();
 						updated = false;
 					}
-				} catch (InterruptedException ignored) {
-				}
+				} catch (InterruptedException ignored) {}
 			}
 
 			//noinspection OptionalGetWithoutIsPresent
@@ -58,8 +57,7 @@ public class Expirator<T extends Expirable> {
 				synchronized (this) {
 					try {
 						wait(timeout);
-					} catch (InterruptedException ignored) {
-					}
+					} catch (InterruptedException ignored) {}
 				}
 			}
 

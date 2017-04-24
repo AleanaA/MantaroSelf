@@ -5,6 +5,5 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 public interface InteractiveOperation {
 	boolean run(MessageReceivedEvent event);
 
-	default void onExpire() {
-	}
+	default void onExpire() {}
 }

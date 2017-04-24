@@ -124,8 +124,7 @@ public class FunCmds {
 							} else {
 								_times = Long.parseLong(parse);
 							}
-						} catch (Exception ignored) {
-						}
+						} catch (Exception ignored) {}
 
 						long times = _times;
 
@@ -135,8 +134,7 @@ public class FunCmds {
 									event.getChannel().sendTyping().complete();
 									Thread.sleep(9000);
 								}
-							} catch (InterruptedException ignored) {
-							}
+							} catch (InterruptedException ignored) {}
 						}));
 
 						return;

@@ -474,13 +474,11 @@ public class ImageCmds {
 					tagsToEncode = args[1];
 					if (needRating) rating = nRating.get(args[2]);
 					number = Integer.parseInt(args[3]);
-				} catch (Exception ignored) {
-				}
+				} catch (Exception ignored) {}
 
 				try {
 					tagsEncoded = URLEncoder.encode(tagsToEncode, "UTF-8");
-				} catch (UnsupportedEncodingException ignored) {
-				} //Shouldn't happen.
+				} catch (UnsupportedEncodingException ignored) {} //Shouldn't happen.
 
 				String noArgs = content.split(" ")[0];
 				switch (noArgs) {

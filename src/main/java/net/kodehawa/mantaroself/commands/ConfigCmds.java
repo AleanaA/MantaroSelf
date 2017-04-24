@@ -1,8 +1,6 @@
 package net.kodehawa.mantaroself.commands;
 
 import bsh.Interpreter;
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
@@ -51,9 +49,7 @@ public class ConfigCmds {
 		}
 	}
 
-	public static void actions(CommandRegistry registry) {
-
-	}
+	public static void actions(CommandRegistry registry) {}
 
 	@Event
 	public static void eval(CommandRegistry registry) {
@@ -106,24 +102,24 @@ public class ConfigCmds {
 			}
 		});
 
-		evaluators.put("groovy", new Evaluator("Groovy") {
-			@Override
-			public Object eval(MessageReceivedEvent event, String code) {
-				Binding groovyEnv = new Binding();
-				groovyEnv.setVariable("jda", event.getJDA());
-				groovyEnv.setVariable("event", event);
-				groovyEnv.setVariable("guild", event.getGuild());
-				groovyEnv.setVariable("channel", event.getChannel());
-				groovyEnv.setVariable("evaluators", evaluators);
-
-				GroovyShell groovy = new GroovyShell(groovyEnv);
-				try {
-					return groovy.evaluate(code);
-				} catch (Exception e) {
-					return e;
-				}
-			}
-		});
+//		evaluators.put("groovy", new Evaluator("Groovy") {
+//			@Override
+//			public Object eval(MessageReceivedEvent event, String code) {
+//				Binding groovyEnv = new Binding();
+//				groovyEnv.setVariable("jda", event.getJDA());
+//				groovyEnv.setVariable("event", event);
+//				groovyEnv.setVariable("guild", event.getGuild());
+//				groovyEnv.setVariable("channel", event.getChannel());
+//				groovyEnv.setVariable("evaluators", evaluators);
+//
+//				GroovyShell groovy = new GroovyShell(groovyEnv);
+//				try {
+//					return groovy.evaluate(code);
+//				} catch (Exception e) {
+//					return e;
+//				}
+//			}
+//		});
 
 		registry.register("eval", new SimpleCommand(Category.UTILS) {
 			@Override

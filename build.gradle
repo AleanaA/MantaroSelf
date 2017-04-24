@@ -24,7 +24,7 @@ ext {
 mainClassName = bootClass
 
 //Use an unified versioning system
-def ver = new Version(major: 1, minor: 1, revision: 1)
+def ver = new Version(major: 1, minor: 2, revision: 0)
 version ver.toString()
 
 //We are going to use Java 8
@@ -33,9 +33,6 @@ targetCompatibility = 1.8
 
 repositories {
 	jcenter()
-	maven {
-		url "http://dl.bintray.com/frederikam/JCA"
-	}
 }
 
 dependencies {
@@ -46,7 +43,7 @@ dependencies {
 
 	//compile 'com.udojava:EvalEx:1.0'
 	compile 'org.apache-extras.beanshell:bsh:2.0b6'
-	compile 'org.codehaus.groovy:groovy-all:2.4.9'
+//	compile 'org.codehaus.groovy:groovy-all:2.4.9'
 
 	compile 'us.monoid.web:resty:0.3.2'
 	compile group: 'org.jsoup', name: 'jsoup', version: '1.8.3'

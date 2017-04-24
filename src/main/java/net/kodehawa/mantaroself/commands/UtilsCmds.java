@@ -129,8 +129,7 @@ public class UtilsCmds {
 					} else {
 						event.getChannel().sendMessage(EmoteReference.ERROR2 + "You didn't specify a valid timezone").queue();
 					}
-				} catch (Exception ignored) {
-				}
+				} catch (Exception ignored) {}
 			})
 			.help((thiz, event) -> thiz.helpEmbed(event, "Time")
 				.setDescription("Get the time in a specific timezone.\n"
@@ -210,8 +209,7 @@ public class UtilsCmds {
 					String url = null;
 					try {
 						url = "http://api.urbandictionary.com/v0/define?term=" + URLEncoder.encode(beheadedSplit[0], "UTF-8");
-					} catch (UnsupportedEncodingException ignored) {
-					}
+					} catch (UnsupportedEncodingException ignored) {}
 					String json = Utils.wgetResty(url);
 					UrbanData data = GsonDataManager.GSON_PRETTY.fromJson(json, UrbanData.class);
 
@@ -280,9 +278,7 @@ public class UtilsCmds {
 
 		registry.register("utils", new SimpleCommand(Category.UTILS) {
 			@Override
-			public void call(MessageReceivedEvent event, String content, String[] args) {
-
-			}
+			public void call(MessageReceivedEvent event, String content, String[] args) {}
 
 			@Override
 			public MessageEmbed help(MessageReceivedEvent event) {
@@ -387,8 +383,7 @@ public class UtilsCmds {
 						),
 						false
 					);
-				} catch (Exception ignored) {
-				}
+				} catch (Exception ignored) {}
 
 				event.getChannel().sendMessage(builder
 					.addField("Download Link", "[Click Here!](" + info.link + ")", false)

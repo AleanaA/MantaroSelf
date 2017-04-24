@@ -79,17 +79,10 @@ public class MiscCmds {
 			.build());
 	}
 
-	/**
-	 * @return a random hex color.
-	 */
-
 	@Event
 	public static void randomFact(CommandRegistry cr) {
 		cr.register("randomfact", Commands.newSimple(Category.MISC)
-
-			.onCall((thiz, event, content, args) -> {
-				event.getChannel().sendMessage(EmoteReference.TALKING + facts.get().get(new Random().nextInt(facts.get().size() - 1))).queue();
-			})
+			.onCall((thiz, event, content, args) -> event.getChannel().sendMessage(EmoteReference.TALKING + facts.get().get(new Random().nextInt(facts.get().size() - 1))).queue())
 			.help((thiz, event) -> thiz.helpEmbed(event, "Random Fact")
 				.setDescription("Sends a random fact.")
 				.build())

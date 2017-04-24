@@ -61,8 +61,7 @@ public class CommandListener implements EventListener {
 			String post = null;
 			try {
 				post = Utils.paste(Throwables.getStackTraceAsString(e));
-			} catch (Exception ignored) {
-			}
+			} catch (Exception ignored) {}
 
 			event.getChannel().sendMessage(EmoteReference.ERROR + "Error happened. Check logs." + (post == null ? "" : " (Pasted: " + post + ")")).queue();
 			log.warn("Error on Command ``" + event.getMessage().getRawContent() + "``: ", e);

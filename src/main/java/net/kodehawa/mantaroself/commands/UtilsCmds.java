@@ -12,10 +12,12 @@ import net.kodehawa.mantaroself.commands.utils.data.YoutubeMp3Info;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
 import net.kodehawa.mantaroself.modules.Event;
 import net.kodehawa.mantaroself.modules.Module;
-import net.kodehawa.mantaroself.modules.commands.Commands;
 import net.kodehawa.mantaroself.modules.commands.SimpleCommand;
 import net.kodehawa.mantaroself.modules.commands.base.Category;
-import net.kodehawa.mantaroself.utils.*;
+import net.kodehawa.mantaroself.utils.DiscordUtils;
+import net.kodehawa.mantaroself.utils.MapObject;
+import net.kodehawa.mantaroself.utils.StringUtils;
+import net.kodehawa.mantaroself.utils.Utils;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 import net.kodehawa.mantaroself.utils.data.GsonDataManager;
 import org.json.JSONArray;
@@ -76,18 +78,11 @@ public class UtilsCmds {
 		});
 	}
 
-	private static String dateGMT(String timezone) throws ParseException, NullPointerException {
-		SimpleDateFormat dateGMT = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
-		dateGMT.setTimeZone(TimeZone.getTimeZone(timezone));
-		SimpleDateFormat dateLocal = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
-		Date date1 = dateLocal.parse(dateGMT.format(new Date()));
-		return DateFormat.getInstance().format(date1);
-	}
-
 	@Event
 	public static void googleSearch(CommandRegistry cr) {
-		cr.register("google", Commands.newSimple(Category.UTILS)
-			.onCall((thiz, event, content, args) -> {
+		cr.register("google", new SimpleCommand(Category.UTILS) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				StringBuilder b = new StringBuilder();
 				EmbedBuilder builder = new EmbedBuilder();
 				List<Crawler.SearchResult> result = Crawler.get(content);
@@ -105,23 +100,24 @@ public class UtilsCmds {
 					event.getMessage().addReaction(EmoteReference.OK.getUnicode()).queue();
 				};
 				DiscordUtils.selectInt(event, result.size() + 1, selector);
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Google search")
-				.setDescription("Searches on google.")
-				.addField("Usage", prefix() + "google <query>", false)
-				.addField("Parameters", "query: the search query", false)
-				.build())
-			.build());
-	}
+			}
 
-	private static String randomColor() {
-		return IntStream.range(0, 6).mapToObj(i -> random(HEX_LETTERS)).collect(Collectors.joining());
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Google search")
+					.setDescription("Searches on google.")
+					.addField("Usage", prefix() + "google <query>", false)
+					.addField("Parameters", "query: the search query", false)
+					.build();
+			}
+		});
 	}
 
 	@Event
 	public static void time(CommandRegistry cr) {
-		cr.register("time", Commands.newSimple(Category.UTILS)
-			.onCall((thiz, event, content, args) -> {
+		cr.register("time", new SimpleCommand(Category.UTILS) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				try {
 					if (content.startsWith("GMT")) {
 						event.getChannel().sendMessage(EmoteReference.MEGA + "It's " + dateGMT(content) + " in the " + content + " " +
@@ -130,22 +126,27 @@ public class UtilsCmds {
 						event.getChannel().sendMessage(EmoteReference.ERROR2 + "You didn't specify a valid timezone").queue();
 					}
 				} catch (Exception ignored) {}
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Time")
-				.setDescription("Get the time in a specific timezone.\n"
-					+ prefix() + "time [timezone]. Retrieves the time in the specified timezone [**Don't write a country**!].\n"
-					+ "**Parameter specification**\n"
-					+ "[timezone] A **valid** timezone [no countries!] between GMT-12 and GMT+14")
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Time")
+					.setDescription("Get the time in a specific timezone.\n"
+						+ prefix() + "time [timezone]. Retrieves the time in the specified timezone [**Don't write a country**!].\n"
+						+ "**Parameter specification**\n"
+						+ "[timezone] A **valid** timezone [no countries!] between GMT-12 and GMT+14")
+					.build();
+			}
+		});
 	}
 
 	@Event
 	public static void translate(CommandRegistry cr) {
 		Resty resty = new Resty().identifyAsMozilla();
 
-		cr.register("translate", Commands.newSimple(Category.UTILS)
-			.onCall((thiz, event, content, args) -> {
+		cr.register("translate", new SimpleCommand(Category.UTILS) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				try {
 					MessageChannel channel = event.getChannel();
 
@@ -153,7 +154,7 @@ public class UtilsCmds {
 						String sourceLang = args[0];
 						String targetLang = args[1];
 						String textToEncode = content.replace(args[0] + " " + args[1] + " ", "");
-						String textEncoded = URLEncoding.encode(textToEncode);
+						String textEncoded = encode(textToEncode);
 						String translatorUrl2;
 
 						String translatorUrl = String.format("https://translate.google.com/translate_a/" +
@@ -177,30 +178,35 @@ public class UtilsCmds {
 								.queue();
 						}
 					} else {
-						thiz.onHelp(event);
+						onHelp(event);
 					}
 				} catch (Exception e) {
 					event.getChannel().sendMessage("Error while fetching results. Google doesn't like us " + EmoteReference.SAD
 						.getDiscordNotation())
 						.queue();
 				}
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Translation command")
-				.setDescription("Translates the given sentence.\n"
-					+ "**Usage:**\n"
-					+ prefix() + "translate <sourcelang> <outputlang> <sentence>.\n"
-					+ "**Parameter explanation**\n"
-					+ "sourcelang: The language the sentence is written in. Use codes (english = en)\n"
-					+ "outputlang: The language you want to translate to (french = fr, for example)\n"
-					+ "sentence: The sentence to translate.")
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Translation command")
+					.setDescription("Translates the given sentence.\n"
+						+ "**Usage:**\n"
+						+ prefix() + "translate <sourcelang> <outputlang> <sentence>.\n"
+						+ "**Parameter explanation**\n"
+						+ "sourcelang: The language the sentence is written in. Use codes (english = en)\n"
+						+ "outputlang: The language you want to translate to (french = fr, for example)\n"
+						+ "sentence: The sentence to translate.")
+					.build();
+			}
+		});
 	}
 
 	@Event
 	public static void urban(CommandRegistry cr) {
-		cr.register("urban", Commands.newSimple(Category.UTILS)
-			.onCall((thiz, event, content, args) -> {
+		cr.register("urban", new SimpleCommand(Category.UTILS) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				String beheadedSplit[] = content.split("->");
 				EmbedBuilder embed = new EmbedBuilder();
 
@@ -250,22 +256,26 @@ public class UtilsCmds {
 							event.getChannel().sendMessage(embed.build()).queue();
 							break;
 						default:
-							thiz.onHelp(event);
+							onHelp(event);
 							break;
 					}
 				}
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Urban dictionary")
-				.setDescription("Retrieves definitions from **Urban Dictionary**.\n"
-					+ "Usage: \n"
-					+ prefix() + "urban <term>-><number>: Retrieve a definition based on the given parameters.\n"
-					+ "Parameter description:\n"
-					+ "term: The term you want to look up\n"
-					+ "number: **OPTIONAL** Parameter defined with the modifier '->' after the term. You don't need to use it" +
-					".\n"
-					+ "e.g. putting 2 will fetch the second result on Urban Dictionary")
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Urban dictionary")
+					.setDescription("Retrieves definitions from **Urban Dictionary**.\n"
+						+ "Usage: \n"
+						+ prefix() + "urban <term>-><number>: Retrieve a definition based on the given parameters.\n"
+						+ "Parameter description:\n"
+						+ "term: The term you want to look up\n"
+						+ "number: **OPTIONAL** Parameter defined with the modifier '->' after the term. You don't need to use it" +
+						".\n"
+						+ "e.g. putting 2 will fetch the second result on Urban Dictionary")
+					.build();
+			}
+		});
 	}
 
 	@Event
@@ -294,10 +304,11 @@ public class UtilsCmds {
 			return;
 		}
 
-		cr.register("weather", Commands.newSimple(Category.FUN)
-			.onCall((thiz, event, content, args) -> {
+		cr.register("weather", new SimpleCommand(Category.UTILS) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				if (content.isEmpty()) {
-					thiz.onHelp(event);
+					onHelp(event);
 					return;
 				}
 
@@ -340,22 +351,27 @@ public class UtilsCmds {
 					if (!(e instanceof NullPointerException))
 						log.warn("Exception caught while trying to fetch weather data, maybe the API changed something?", e);
 				}
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Weather command")
-				.setDescription("This command retrieves information from OpenWeatherMap. Used to check **forecast information.**\n"
-					+ "> Usage:\n"
-					+ prefix() + "weather <city>,<countrycode>: Retrieves the forecast information for the given location.\n"
-					+ "> Parameters:\n"
-					+ "city: Your city name, e.g. New York\n"
-					+ "countrycode: (OPTIONAL) The abbreviation for your country, for example US (USA) or MX (Mexico).")
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Weather command")
+					.setDescription("This command retrieves information from OpenWeatherMap. Used to check **forecast information.**\n"
+						+ "> Usage:\n"
+						+ prefix() + "weather <city>,<countrycode>: Retrieves the forecast information for the given location.\n"
+						+ "> Parameters:\n"
+						+ "city: Your city name, e.g. New York\n"
+						+ "countrycode: (OPTIONAL) The abbreviation for your country, for example US (USA) or MX (Mexico).")
+					.build();
+			}
+		});
 	}
 
 	@Event
 	public static void ytmp3(CommandRegistry cr) {
-		cr.register("ytmp3", Commands.newSimple(Category.FUN)
-			.onCall((thiz, event, content, args) -> {
+		cr.register("ytmp3", new SimpleCommand(Category.UTILS) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				YoutubeMp3Info info = YoutubeMp3Info.forLink(content);
 
 				if (info == null) {
@@ -389,12 +405,29 @@ public class UtilsCmds {
 					.addField("Download Link", "[Click Here!](" + info.link + ")", false)
 					.build()
 				).queue();
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Youtube MP3 command")
-				.setDescription("Youtube video to MP3 converter")
-				.addField("Usage", prefix() + "ytmp3 <youtube link>", true)
-				.addField("Parameters", "youtube link: The link of the video to convert to MP3", true)
-				.build())
-			.build());
+
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Youtube MP3 command")
+					.setDescription("Youtube video to MP3 converter")
+					.addField("Usage", prefix() + "ytmp3 <youtube link>", true)
+					.addField("Parameters", "youtube link: The link of the video to convert to MP3", true)
+					.build();
+			}
+		});
+	}
+
+	private static String dateGMT(String timezone) throws ParseException, NullPointerException {
+		SimpleDateFormat dateGMT = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
+		dateGMT.setTimeZone(TimeZone.getTimeZone(timezone));
+		SimpleDateFormat dateLocal = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
+		Date date1 = dateLocal.parse(dateGMT.format(new Date()));
+		return DateFormat.getInstance().format(date1);
+	}
+
+	private static String randomColor() {
+		return IntStream.range(0, 6).mapToObj(i -> random(HEX_LETTERS)).collect(Collectors.joining());
 	}
 }

@@ -29,11 +29,6 @@ public class TextActionCmd extends NoArgsCommand {
 	}
 
 	@Override
-	public Category category() {
-		return Category.ACTION;
-	}
-
-	@Override
 	public MessageEmbed help(MessageReceivedEvent event) {
 		return helpEmbed(event, name)
 			.setDescription(desc)

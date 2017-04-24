@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.MantaroInfo;
 import net.kodehawa.mantaroself.MantaroSelf;
 import net.kodehawa.mantaroself.commands.info.CommandStatsManager;
@@ -15,15 +16,13 @@ import net.kodehawa.mantaroself.data.MantaroData;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
 import net.kodehawa.mantaroself.modules.Event;
 import net.kodehawa.mantaroself.modules.Module;
-import net.kodehawa.mantaroself.modules.commands.Commands;
+import net.kodehawa.mantaroself.modules.commands.SimpleCommand;
 import net.kodehawa.mantaroself.modules.commands.base.Category;
 import net.kodehawa.mantaroself.modules.commands.base.Command;
 import net.kodehawa.mantaroself.modules.events.PostLoadEvent;
 import net.kodehawa.mantaroself.utils.DiscordUtils;
 import net.kodehawa.mantaroself.utils.Utils;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.Color;
 import java.lang.management.ManagementFactory;
@@ -41,26 +40,12 @@ import static net.kodehawa.mantaroself.utils.DiscordUtils.usersMentioned;
 
 @Module
 public class InfoCmds {
-	public static Logger LOGGER = LoggerFactory.getLogger("InfoCmds");
 
 	@Event
 	public static void about(CommandRegistry cr) {
-		cr.register("about", Commands.newSimple(Category.INFO)
-
-			.onCall((thiz, event, content, args) -> {
-//				if (!content.isEmpty() && args[0].equals("credits")) {
-//					EmbedBuilder builder = new EmbedBuilder();
-//					builder.setAuthor("Credits.", null, event.getJDA().getSelfUser().getAvatarUrl())
-//						.setColor(Color.BLUE)
-//						.setDescription("**Main developer**: Kodehawa#3457\n"
-//							+ "**Developer**: AdrianTodt#0722\n" + "**Music**: Steven#6340\n" + "**Cross bot integration**: Natan#1289\n**Grammar corrections and development**: Adam#9261")
-//						.addField("Special mentions",
-//							"Thanks to DiscordBots, Carbonitex and DiscordBots.org for helping us with increasing the bot's visibility.", false)
-//						.setFooter("Much thanks to them for helping make Mantaro better!", event.getJDA().getSelfUser().getAvatarUrl());
-//					event.getChannel().sendMessage(builder.build()).queue();
-//					return;
-//				}
-
+		cr.register("about", new SimpleCommand(Category.INFO) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				List<Guild> guilds = MantaroSelf.instance().getGuilds();
 				int guildCount = guilds.size();
 				int usersCount = MantaroSelf.instance().getUsers().size();
@@ -78,7 +63,7 @@ public class InfoCmds {
 				long hours = minutes / 60;
 				long days = hours / 24;
 
-				event.getChannel().sendMessage(thiz.baseEmbed(event, data().get().botInfo.aboutTitle)
+				event.getChannel().sendMessage(baseEmbed(event, data().get().botInfo.aboutTitle)
 					.setDescription(data().get().botInfo.aboutDescription)
 					.addField(
 						"Information:",
@@ -93,38 +78,45 @@ public class InfoCmds {
 					.setFooter(String.format("Invite link: http://polr.me/mantaro (Commands this session: %s)", CommandListener.getCommandTotal()), event.getJDA().getSelfUser().getAvatarUrl())
 					.build()
 				).queue();
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "About Command")
-				.addField("Description:", "Read info about Mantaro!", false)
-				.addField("Information", prefix() + "about credits lists everyone who has helped on the bot's development", false)
-				.setColor(Color.PINK)
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "About Command")
+					.addField("Description:", "Read info about Mantaro!", false)
+					.addField("Information", prefix() + "about credits lists everyone who has helped on the bot's development", false)
+					.build();
+			}
+		});
 	}
 
 	@Event
 	public static void avatar(CommandRegistry cr) {
-		cr.register("avatar", Commands.newSimple(Category.INFO)
-
-			.onCall((thiz, event, content, args) -> {
+		cr.register("avatar", new SimpleCommand(Category.INFO) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				List<User> mentioned = usersMentioned(event.getMessage());
 				User user = mentioned.isEmpty() ? event.getAuthor() : mentioned.get(0);
 				event.getChannel().sendMessage(String.format("Avatar for: **%s**\n%s", user.getName(), user.getAvatarUrl())).queue();
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Avatar")
-				.setDescription("Get user avatar URLs")
-				.addField("Usage",
-					prefix() + "avatar - Get your avatar url" +
-						"\n " + prefix() + "avatar <mention> - Get a user's avatar url.", false)
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Avatar")
+					.setDescription("Get user avatar URLs")
+					.addField("Usage",
+						prefix() + "avatar - Get your avatar url" +
+							"\n " + prefix() + "avatar <mention> - Get a user's avatar url.", false)
+					.build();
+			}
+		});
 	}
 
 	@Event
 	public static void guildinfo(CommandRegistry cr) {
-		cr.register("guildinfo", Commands.newSimple(Category.INFO)
-
-			.onCall((thiz, event, content, args) -> {
+		cr.register("guildinfo", new SimpleCommand(Category.INFO) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				TextChannel channel = event.getTextChannel();
 
 				if (channel == null) {
@@ -157,12 +149,16 @@ public class InfoCmds {
 					.setFooter("Server ID: " + String.valueOf(guild.getId()), null)
 					.build()
 				).queue();
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Guild Info Command")
-				.addField("Description:", "See your guild's current stats.\n*Can be only issued from a Guild.*", false)
-				.setColor(event.getGuild().getOwner().getColor() == null ? Color.ORANGE : event.getGuild().getOwner().getColor())
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Guild Info Command")
+					.addField("Description:", "See your guild's current stats.\n*Can be only issued from a Guild.*", false)
+					.setColor(event.getGuild().getOwner().getColor() == null ? Color.ORANGE : event.getGuild().getOwner().getColor())
+					.build();
+			}
+		});
 	}
 
 	@Event
@@ -176,14 +172,13 @@ public class InfoCmds {
 			"A help helping helping helping help."
 		));
 
-		cr.register("help", Commands.newSimple(Category.INFO)
-
-			.onCall((thiz, event, content, args) -> {
+		cr.register("help", new SimpleCommand(Category.INFO) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				if (content.isEmpty()) {
 					String prefix = MantaroData.config().get().prefix();
 
-					EmbedBuilder embed = thiz.baseEmbed(event, "Commands:")
-						.setColor(Color.PINK)
+					EmbedBuilder embed = baseEmbed(event, "Commands:")
 						.setDescription("Command help. For extended usage please use " + String.format("%shelp <command>.", prefix))
 						.setFooter(String.format("To check command usage, type %shelp <command> // -> Commands: " +
 							CommandProcessor.REGISTRY.commands().values().stream()
@@ -206,23 +201,26 @@ public class InfoCmds {
 						event.getChannel().sendMessage(EmoteReference.ERROR + "A command with this name doesn't exist").queue();
 					}
 				}
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Help Command")
-				.setColor(Color.PINK)
-				.addField("Description:", jokes.get(r.nextInt(jokes.size())), false)
-				.addField(
-					"Usage:",
-					"`" + prefix() + "help`: Return information about who issued the command.\n`" + prefix() + "help <command>`: Return information about the command specified.",
-					false
-				).build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Help Command")
+					.addField("Description:", jokes.get(r.nextInt(jokes.size())), false)
+					.addField(
+						"Usage:",
+						"`" + prefix() + "help`: Return information about who issued the command.\n`" + prefix() + "help <command>`: Return information about the command specified.",
+						false
+					).build();
+			}
+		});
 	}
 
 	@Event
 	public static void info(CommandRegistry cr) {
-		cr.register("info", Commands.newSimple(Category.INFO)
-
-			.onCall((thiz, event, content, args) -> {
+		cr.register("info", new SimpleCommand(Category.INFO) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				List<Guild> guilds = MantaroSelf.instance().getGuilds();
 
 				event.getChannel().sendMessage("```prolog\n"
@@ -240,77 +238,47 @@ public class InfoCmds {
 					+ "Executed Commands: " + CommandListener.getCommandTotal() + "\n"
 					+ "Memory: " + (getTotalMemory() - getFreeMemory()) + "MB / " + getMaxMemory() + "MB" + "\n"
 					+ "```").queue();
-			})
-			.help((thiz, event) -> thiz.baseEmbed(event, "Info")
-				.setDescription("Gets the bot technical information")
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return baseEmbed(event, "Info")
+					.setDescription("Gets the bot technical information")
+					.build();
+			}
+		});
 	}
 
 	@Event
-	public static void invite(CommandRegistry cr) {
-		cr.register("invite", Commands.newSimple(Category.INFO)
-
-			.onCall((thiz, event, content, args) -> {
-				event.getChannel().sendMessage(new EmbedBuilder().setAuthor("Mantaro's Invite URL.", null, event.getJDA().getSelfUser().getAvatarUrl())
-					.addField("Invite URL", "http://polr.me/mantaro", false)
-					.addField("Support Server", "https://discordapp.com/invite/cMTmuPa", false)
-					.addField("Patreon URL", "http://patreon.com/mantaro", false)
-					.setDescription("Here are some useful links! If you have any questions about the bot, feel free to join the support guild and tag @Steven#6340." +
-						"\nWe provided a patreon link in case you would like to help Mantaro keep running by donating [and getting perks!]. Thanks you in advance for using the bot! <3 from the developers")
-					.setFooter("We hope you have fun with the bot.", event.getJDA().getSelfUser().getAvatarUrl())
-					.build()).queue();
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Invite command")
-				.setDescription("Gives you a bot OAuth invite link.").build())
-			.build());
-	}
-
-	@Event
-	public static void onPostLoad(PostLoadEvent event) {
+	public static void onPostLoad(PostLoadEvent e) {
 		start();
 	}
 
 	@Event
 	public static void ping(CommandRegistry cr) {
+		cr.register("ping", new SimpleCommand(Category.INFO) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 
-		cr.register("ping", Commands.newSimple(Category.INFO)
-			.onCall((thiz, event, content, args) -> {
 				long start = System.currentTimeMillis();
 				event.getChannel().sendTyping().queue(v -> {
 					long ping = System.currentTimeMillis() - start;
 					event.getChannel().sendMessage(EmoteReference.MEGA + "My ping: " + ping + " ms - " + ratePing(ping) + "  `Websocket:" + event.getJDA().getPing() + "ms`").queue();
 				});
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Ping Command")
-				.addField("Description:", "Plays Ping-Pong with Discord and prints out the result.", false)
-				.build())
-			.build());
-	}
+			}
 
-	private static String ratePing(long ping) {
-		if (ping <= 1) return "supersonic speed! :upside_down:"; //just in case...
-		if (ping <= 10) return "faster than Sonic! :smiley:";
-		if (ping <= 100) return "great! :smiley:";
-		if (ping <= 200) return "nice! :slight_smile:";
-		if (ping <= 300) return "decent. :neutral_face:";
-		if (ping <= 400) return "average... :confused:";
-		if (ping <= 500) return "slightly slow. :slight_frown:";
-		if (ping <= 600) return "kinda slow.. :frowning2:";
-		if (ping <= 700) return "slow.. :worried:";
-		if (ping <= 800) return "too slow. :disappointed:";
-		if (ping <= 800) return "awful. :weary:";
-		if (ping <= 900) return "bad. :sob: (helpme)";
-		if (ping <= 1600) return "#BlameDiscord. :angry:";
-		if (ping <= 10000) return "this makes no sense :thinking: #BlameSteven";
-		return "slow af. :dizzy_face: ";
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Ping Command").addField("Description:", "Plays Ping-Pong with Discord and prints out the result.", false).build();
+			}
+		});
 	}
 
 	@Event
 	public static void stats(CommandRegistry cr) {
-		cr.register("stats", Commands.newSimple(Category.INFO)
-
-			.onCall((thiz, event, content, args) -> {
+		cr.register("stats", new SimpleCommand(Category.INFO) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				if (content.isEmpty()) {
 					List<Guild> guilds = MantaroSelf.instance().getGuilds();
 
@@ -325,8 +293,7 @@ public class InfoCmds {
 
 					event.getChannel().sendMessage(
 						new EmbedBuilder()
-							.setColor(Color.PINK)
-							.setAuthor("Mantaro Statistics", "https://github.com/Kodehawa/MantaroBot/", event.getJDA().getSelfUser().getAvatarUrl())
+							.setAuthor("Statistics", null, event.getJDA().getSelfUser().getAvatarUrl())
 							.setThumbnail(event.getJDA().getSelfUser().getAvatarUrl())
 							.setDescription("Well... I did my math!")
 							.addField("Users per Guild", String.format(Locale.ENGLISH, "Min: %d\nAvg: %.1f\nMax: %d", usersPerGuild.min, usersPerGuild.avg, usersPerGuild.max), true)
@@ -373,28 +340,28 @@ public class InfoCmds {
 					if (args.length > 1) {
 						String what = args[1];
 						if (what.equals("total")) {
-							event.getChannel().sendMessage(CommandStatsManager.fillEmbed(CommandStatsManager.TOTAL_CMDS, thiz.baseEmbed(event, "Command Stats | Total")).build()).queue();
+							event.getChannel().sendMessage(CommandStatsManager.fillEmbed(CommandStatsManager.TOTAL_CMDS, baseEmbed(event, "Command Stats | Total")).build()).queue();
 							return;
 						}
 
 						if (what.equals("daily")) {
-							event.getChannel().sendMessage(CommandStatsManager.fillEmbed(CommandStatsManager.DAY_CMDS, thiz.baseEmbed(event, "Command Stats | Daily")).build()).queue();
+							event.getChannel().sendMessage(CommandStatsManager.fillEmbed(CommandStatsManager.DAY_CMDS, baseEmbed(event, "Command Stats | Daily")).build()).queue();
 							return;
 						}
 
 						if (what.equals("hourly")) {
-							event.getChannel().sendMessage(CommandStatsManager.fillEmbed(CommandStatsManager.HOUR_CMDS, thiz.baseEmbed(event, "Command Stats | Hourly")).build()).queue();
+							event.getChannel().sendMessage(CommandStatsManager.fillEmbed(CommandStatsManager.HOUR_CMDS, baseEmbed(event, "Command Stats | Hourly")).build()).queue();
 							return;
 						}
 
 						if (what.equals("now")) {
-							event.getChannel().sendMessage(CommandStatsManager.fillEmbed(CommandStatsManager.MINUTE_CMDS, thiz.baseEmbed(event, "Command Stats | Now")).build()).queue();
+							event.getChannel().sendMessage(CommandStatsManager.fillEmbed(CommandStatsManager.MINUTE_CMDS, baseEmbed(event, "Command Stats | Now")).build()).queue();
 							return;
 						}
 					}
 
 					//Default
-					event.getChannel().sendMessage(thiz.baseEmbed(event, "Command Stats")
+					event.getChannel().sendMessage(baseEmbed(event, "Command Stats")
 						.addField("Now", CommandStatsManager.resume(CommandStatsManager.MINUTE_CMDS), false)
 						.addField("Hourly", CommandStatsManager.resume(CommandStatsManager.HOUR_CMDS), false)
 						.addField("Daily", CommandStatsManager.resume(CommandStatsManager.DAY_CMDS), false)
@@ -405,19 +372,24 @@ public class InfoCmds {
 					return;
 				}
 
-				thiz.onHelp(event);
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Statistics command")
-				.setDescription("See the bot, usage or vps statistics")
-				.addField("Usage", prefix() + "stats <usage/host/cmds/guilds>", true)
-				.build())
-			.build());
+				onHelp(event);
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Statistics command")
+					.setDescription("See the bot, usage or host statistics")
+					.addField("Usage", prefix() + "stats <usage/host/cmds/guilds>", true)
+					.build();
+			}
+		});
 	}
 
 	@Event
 	public static void userinfo(CommandRegistry cr) {
-		cr.register("userinfo", Commands.newSimple(Category.INFO)
-			.onCall((thiz, event, content, args) -> {
+		cr.register("userinfo", new SimpleCommand(Category.INFO) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				List<User> mentionedUsers = usersMentioned(event.getMessage());
 				User user = mentionedUsers.size() > 0 ? mentionedUsers.get(0) : event.getAuthor();
 				Member member = event.getGuild() == null ? null : event.getGuild().getMember(user);
@@ -449,11 +421,33 @@ public class InfoCmds {
 				}
 
 				event.getChannel().sendMessage(embed.build()).queue();
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "UserInfo Command")
-				.addField("Description:", "See information about specific users.", false)
-				.addField("Usage:", "`" + prefix() + "userinfo @User`: Get information about the specific user.\n`" + prefix() + "userinfo`: Get information about yourself!", false)
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "UserInfo Command")
+					.addField("Description:", "See information about specific users.", false)
+					.addField("Usage:", "`" + prefix() + "userinfo @User`: Get information about the specific user.\n`" + prefix() + "userinfo`: Get information about yourself!", false)
+					.build();
+			}
+		});
+	}
+
+	private static String ratePing(long ping) {
+		if (ping <= 1) return "supersonic speed! :upside_down:"; //just in case...
+		if (ping <= 10) return "faster than Sonic! :smiley:";
+		if (ping <= 100) return "great! :smiley:";
+		if (ping <= 200) return "nice! :slight_smile:";
+		if (ping <= 300) return "decent. :neutral_face:";
+		if (ping <= 400) return "average... :confused:";
+		if (ping <= 500) return "slightly slow. :slight_frown:";
+		if (ping <= 600) return "kinda slow.. :frowning2:";
+		if (ping <= 700) return "slow.. :worried:";
+		if (ping <= 800) return "too slow. :disappointed:";
+		if (ping <= 800) return "awful. :weary:";
+		if (ping <= 900) return "bad. :sob: (helpme)";
+		if (ping <= 1600) return "#BlameDiscord. :angry:";
+		if (ping <= 10000) return "this makes no sense :thinking: #BlameSteven";
+		return "slow af. :dizzy_face: ";
 	}
 }

@@ -6,16 +6,17 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.kodehawa.lib.imageboard.e621.main.e621;
-import net.kodehawa.lib.imageboard.konachan.main.Konachan;
-import net.kodehawa.lib.imageboard.konachan.main.entities.Wallpaper;
-import net.kodehawa.lib.imageboard.rule34.main.Rule34;
+import net.kodehawa.lib.imageboards.e621.e621;
+import net.kodehawa.lib.imageboards.konachan.Konachan;
+import net.kodehawa.lib.imageboards.konachan.main.entities.Wallpaper;
+import net.kodehawa.lib.imageboards.rule34.Rule34;
 import net.kodehawa.mantaroself.commands.utils.data.ImageData;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
 import net.kodehawa.mantaroself.modules.Event;
 import net.kodehawa.mantaroself.modules.Module;
-import net.kodehawa.mantaroself.modules.commands.Commands;
+import net.kodehawa.mantaroself.modules.commands.SimpleCommand;
 import net.kodehawa.mantaroself.modules.commands.base.Category;
 import net.kodehawa.mantaroself.modules.events.PostLoadEvent;
 import net.kodehawa.mantaroself.utils.Utils;
@@ -38,7 +39,6 @@ import static net.kodehawa.mantaroself.MantaroSelf.prefix;
 
 @Module
 public class ImageCmds {
-
 	public static final URLCache CACHE = new URLCache(20);
 	private static final String BASEURL = "http://catgirls.brussell98.tk/api/random";
 	private static final String NSFWURL = "http://catgirls.brussell98.tk/api/nsfw/random";
@@ -60,9 +60,9 @@ public class ImageCmds {
 
 	@Event
 	public static void cat(CommandRegistry cr) {
-		cr.register("cat", Commands.newSimple(Category.IMAGE)
-
-			.onCall((thiz, event, content, args) -> {
+		cr.register("cat", new SimpleCommand(Category.IMAGE) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				try {
 					String url = Unirest.get("http://random.cat/meow").asJsonAsync().get().getBody().getObject().get("file").toString();
 					event.getChannel().sendFile(CACHE.getFile(url), "cat.jpg",
@@ -70,18 +70,22 @@ public class ImageCmds {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Cat command")
-				.setDescription("Sends a random cat image")
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Cat command")
+					.setDescription("Sends a random cat image")
+					.build();
+			}
+		});
 	}
 
 	@Event
 	public static void catgirls(CommandRegistry cr) {
-		cr.register("catgirl", Commands.newSimple(Category.IMAGE)
-
-			.onCall((thiz, event, content, args) -> {
+		cr.register("catgirl", new SimpleCommand(Category.IMAGE) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				boolean nsfw = args.length > 0 && args[0].equalsIgnoreCase("nsfw");
 
 				try {
@@ -98,19 +102,24 @@ public class ImageCmds {
 					e.printStackTrace();
 					event.getChannel().sendMessage("Unable to get image").queue();
 				}
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Catgirl command")
-				.setDescription("Sends catgirl images")
-				.addField("Usage", "`" + prefix() + "catgirl`\n´" + prefix() + "catgirl nsfw´", false)
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Catgirl command")
+					.setDescription("Sends catgirl images")
+					.addField("Usage", "`" + prefix() + "catgirl`\n´" + prefix() + "catgirl nsfw´", false)
+					.build();
+			}
+		});
 	}
 
 	@Event
 	public static void e621(CommandRegistry cr) {
-		cr.register("name", Commands.newSimple(Category.IMAGE)
+		cr.register("e621", new SimpleCommand(Category.IMAGE) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 
-			.onCall((thiz, event, content, args) -> {
 				String noArgs = content.split(" ")[0];
 				switch (noArgs) {
 					case "get":
@@ -188,71 +197,30 @@ public class ImageCmds {
 						}
 						break;
 					default:
-						thiz.onHelp(event);
+						onHelp(event);
 						break;
 				}
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "e621 commmand")
-				.setDescription("Retrieves images from the **e621** (furry) image board.")
-				.addField("Usage", prefix() + "e621 get <page> <imagenumber>: Gets an image based in parameters.\n"
-					+ prefix() + "e621 tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
-				.addField("Parameters", "page: Can be any value from 1 to the e621 maximum page. Probably around 4000.\n"
-					+ "imagenumber: (OPTIONAL) Any number from 1 to the maximum possible images to get, specified by the first instance of the command.\n"
-					+ "tag: Any valid image tag. For example animal_ears or original.", false)
-				.build())
-			.build());
-	}
-
-	private static EmbedBuilder getImage(int argsCount, String requestType, String url, String rating, String[] messageArray, MessageReceivedEvent event) {
-		EmbedBuilder builder = new EmbedBuilder();
-
-		String json = Utils.wget(url);
-		try {
-			ImageData[] imageData = GsonDataManager.GSON_PRETTY.fromJson(json, ImageData[].class);
-			List<ImageData> filter = new ArrayList<>(Arrays.asList(imageData)).stream().filter(data -> rating.equals(data.rating)).collect(Collectors.toList());
-			int get;
-			try {
-				get = requestType.equals("tags") ? argsCount >= 4 ? number : r.nextInt(filter.size()) : argsCount <= 2 ? Integer.parseInt(messageArray[2]) : r.nextInt(filter.size());
-			} catch (IndexOutOfBoundsException e) {
-				get = r.nextInt(filter.size());
-			} catch (IllegalArgumentException e) {
-				if (e.getMessage().equals("bound must be positive"))
-					return builder.setDescription("No results found.");
-				else return builder.setDescription("Query not valid.");
 			}
 
-			String AUTHOR = filter.get(get).getAuthor();
-			String tags = filter.get(get).getTags().stream().collect(Collectors.joining(", "));
-
-			if (!smallRequest) {
-				return builder.setAuthor("Found image", filter.get(get).getFile_url(), null)
-					.setDescription("Image uploaded by: " + (AUTHOR == null ? "not found" : AUTHOR) + ", with a rating of: **" + nRating.inverseBidiMap().get(filter.get(get).getRating()) + "**")
-					.setImage(filter.get(get).getFile_url())
-					.addField("Height", String.valueOf(filter.get(get).getHeight()), true)
-					.addField("Width", String.valueOf(filter.get(get).getWidth()), true)
-					.addField("Tags", "``" + (tags == null ? "None" : tags) + "``", false)
-					.setFooter("If the image doesn't load, click the title.", null);
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "e621 commmand")
+					.setDescription("Retrieves images from the **e621** (furry) image board.")
+					.addField("Usage", prefix() + "e621 get <page> <imagenumber>: Gets an image based in parameters.\n"
+						+ prefix() + "e621 tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
+					.addField("Parameters", "page: Can be any value from 1 to the e621 maximum page. Probably around 4000.\n"
+						+ "imagenumber: (OPTIONAL) Any number from 1 to the maximum possible images to get, specified by the first instance of the command.\n"
+						+ "tag: Any valid image tag. For example animal_ears or original.", false)
+					.build();
 			}
-
-			return builder.setAuthor("Found image", filter.get(get).getFile_url(), null)
-				.setDescription("Image uploaded by: " + (AUTHOR == null ? "not found" : AUTHOR) + ", with a rating of: **" + nRating.inverseBidiMap().get(filter.get(get).getRating()) + "**")
-				.setImage(filter.get(get).getFile_url())
-				.addField("Width", String.valueOf(filter.get(get).getHeight()), true)
-				.addField("Height", String.valueOf(filter.get(get).getWidth()), true)
-				.addField("Tags", "``" + (tags == null ? "None" : tags) + "``", false)
-				.setFooter("If the image doesn't load, click the title.", null);
-		} catch (Exception ex) {
-			if (ex instanceof NullPointerException)
-				return builder.setDescription(EmoteReference.ERROR + "Wrong syntax.");
-			return builder.setDescription(EmoteReference.ERROR + "There are no images here, just dust.");
-		}
+		});
 	}
 
 	@Event
 	public static void kona(CommandRegistry cr) {
-		cr.register("konachan", Commands.newSimple(Category.IMAGE)
-
-			.onCall((thiz, event, content, args) -> {
+		cr.register("konachan", new SimpleCommand(Category.IMAGE) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				MessageChannel channel = event.getChannel();
 
 				String noArgs = content.split(" ")[0];
@@ -333,23 +301,27 @@ public class ImageCmds {
 						}
 						break;
 					default:
-						thiz.onHelp(event);
+						onHelp(event);
 						break;
 				}
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Konachan commmand")
-				.setDescription("Retrieves images from the **Konachan** image board.")
-				.addField("Usage", prefix() + "konachan get <page> <imagenumber>: Gets an image based in parameters.\n"
-					+ prefix() + "konachan tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
-				.addField("Parameters", "page: Can be any value from 1 to the Konachan maximum page. Probably around 4000.\n"
-					+ "imagenumber: (OPTIONAL) Any number from 1 to the maximum possible images to get, specified by the first instance of the command.\n"
-					+ "tag: Any valid image tag. For example animal_ears or original.", false)
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Konachan commmand")
+					.setDescription("Retrieves images from the **Konachan** image board.")
+					.addField("Usage", prefix() + "konachan get <page> <imagenumber>: Gets an image based in parameters.\n"
+						+ prefix() + "konachan tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
+					.addField("Parameters", "page: Can be any value from 1 to the Konachan maximum page. Probably around 4000.\n"
+						+ "imagenumber: (OPTIONAL) Any number from 1 to the maximum possible images to get, specified by the first instance of the command.\n"
+						+ "tag: Any valid image tag. For example animal_ears or original.", false)
+					.build();
+			}
+		});
 	}
 
 	@Event
-	public static void onPostLoad(PostLoadEvent event) {
+	public static void onPostLoad(PostLoadEvent e) {
 		nRating.put("safe", "s");
 		nRating.put("questionable", "q");
 		nRating.put("explicit", "e");
@@ -357,11 +329,12 @@ public class ImageCmds {
 
 	@Event
 	public static void rule34(CommandRegistry cr) {
-		cr.register("rule34", Commands.newSimple(Category.IMAGE)
-
-			.onCall((thiz, event, content, args) -> {
+		cr.register("rule34", new SimpleCommand(Category.IMAGE) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 
 				String noArgs = content.split(" ")[0];
+
 				switch (noArgs) {
 					case "get":
 						try {
@@ -443,26 +416,30 @@ public class ImageCmds {
 						}
 						break;
 					default:
-						thiz.onHelp(event);
+						onHelp(event);
 						break;
 				}
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "rule34.xxx commmand")
-				.setDescription("Retrieves images from the **rule34** (hentai) image board.")
-				.addField("Usage", prefix() + "rule34 get <imagenumber>: Gets an image based in parameters.\n"
-					+ prefix() + "rule34 tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
-				.addField("Parameters", "page: Can be any value from 1 to the rule34 maximum page. Probably around 4000.\n"
-					+ "imagenumber: (OPTIONAL) Any number from 1 to the maximum possible images to get, specified by the first instance of the command.\n"
-					+ "tag: Any valid image tag. For example animal_ears or original.", false)
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "rule34.xxx commmand")
+					.setDescription("Retrieves images from the **rule34** (hentai) image board.")
+					.addField("Usage", prefix() + "rule34 get <imagenumber>: Gets an image based in parameters.\n"
+						+ prefix() + "rule34 tags <tag> <imagenumber>: Gets an image based in the specified tag and parameters.\n", false)
+					.addField("Parameters", "page: Can be any value from 1 to the rule34 maximum page. Probably around 4000.\n"
+						+ "imagenumber: (OPTIONAL) Any number from 1 to the maximum possible images to get, specified by the first instance of the command.\n"
+						+ "tag: Any valid image tag. For example animal_ears or original.", false)
+					.build();
+			}
+		});
 	}
 
 	@Event
 	public static void yandere(CommandRegistry cr) {
-		cr.register("yandere", Commands.newSimple(Category.IMAGE)
-
-			.onCall((thiz, event, content, args) -> {
+		cr.register("yandere", new SimpleCommand(Category.IMAGE) {
+			@Override
+			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				rating = "s";
 				needRating = args.length >= 3;
 				smallRequest = args.length <= 1;
@@ -484,7 +461,7 @@ public class ImageCmds {
 				switch (noArgs) {
 					case "get":
 						String url = String.format(YANDERE_BASE + "page=%2s", String.valueOf(page)).replace(" ", "");
-						channel.sendMessage(getImage(argCount, "get", url, rating, args, event).build()).queue();
+						channel.sendMessage(getImage(argCount, "get", url, rating, args).build()).queue();
 						break;
 					case "tags":
 						boolean isOldFormat = args[1].matches("^[0-9]*$");
@@ -494,30 +471,79 @@ public class ImageCmds {
 						}
 
 						String url1 = String.format(YANDERE_BASE + "page=%2s&tags=%3s", String.valueOf(page), tagsEncoded).replace(" ", "");
-						channel.sendMessage(getImage(argCount, "tags", url1, rating, args, event).build()).queue();
+						channel.sendMessage(getImage(argCount, "tags", url1, rating, args).build()).queue();
 						break;
 					case "":
 						int randomPage = r.nextInt(5);
 						String url2 = String.format(YANDERE_BASE + "&page=%2s", String.valueOf(randomPage)).replace(" ", "");
-						channel.sendMessage(getImage(argCount, "random", url2, rating, args, event).build()).queue();
+						channel.sendMessage(getImage(argCount, "random", url2, rating, args).build()).queue();
 						break;
 					default:
-						thiz.onHelp(event);
+						onHelp(event);
 						break;
 				}
-			})
-			.help((thiz, event) -> thiz.helpEmbed(event, "Yande.re command")
-				.setDescription("This command fetches images from the image board **yande.re**. Normally used to store *NSFW* images, "
-					+ "but tags can be set to safe if you so desire.\n"
-					+ prefix() + "yandere: Gets you a completely random image.\n"
-					+ prefix() + "yandere get <imagenumber> <rating>: Gets you an image with the specified parameters.\n"
-					+ prefix() + "yandere tags <tag> <rating> <imagenumber>: Gets you an image with the respective tag and specified parameters.\n"
-					+ "This command can be only used in NSFW channels! (Unless rating has been specified as safe)\n"
-					+ "> Parameter explanation:\n"
-					+ "imagenumber: (OPTIONAL) Any number from 1 to the maximum possible images to get, specified by the first instance of the command.\n"
-					+ "tag: Any valid image tag. For example animal_ears or yuri. (only one tag, spaces are separated by underscores)\n"
-					+ "rating: (OPTIONAL) Can be either safe, questionable or explicit, depends on the type of image you want to get.")
-				.build())
-			.build());
+			}
+
+			@Override
+			public MessageEmbed help(MessageReceivedEvent event) {
+				return helpEmbed(event, "Yande.re command")
+					.setDescription("This command fetches images from the image board **yande.re**. Normally used to store *NSFW* images, "
+						+ "but tags can be set to safe if you so desire.\n"
+						+ prefix() + "yandere: Gets you a completely random image.\n"
+						+ prefix() + "yandere get <imagenumber> <rating>: Gets you an image with the specified parameters.\n"
+						+ prefix() + "yandere tags <tag> <rating> <imagenumber>: Gets you an image with the respective tag and specified parameters.\n"
+						+ "This command can be only used in NSFW channels! (Unless rating has been specified as safe)\n"
+						+ "> Parameter explanation:\n"
+						+ "imagenumber: (OPTIONAL) Any number from 1 to the maximum possible images to get, specified by the first instance of the command.\n"
+						+ "tag: Any valid image tag. For example animal_ears or yuri. (only one tag, spaces are separated by underscores)\n"
+						+ "rating: (OPTIONAL) Can be either safe, questionable or explicit, depends on the type of image you want to get.")
+					.build();
+			}
+		});
+	}
+
+	private static EmbedBuilder getImage(int argsCount, String requestType, String url, String rating, String[] messageArray) {
+		EmbedBuilder builder = new EmbedBuilder();
+
+		String json = Utils.wget(url);
+		try {
+			ImageData[] imageData = GsonDataManager.GSON_PRETTY.fromJson(json, ImageData[].class);
+			List<ImageData> filter = new ArrayList<>(Arrays.asList(imageData)).stream().filter(data -> rating.equals(data.rating)).collect(Collectors.toList());
+			int get;
+			try {
+				get = requestType.equals("tags") ? argsCount >= 4 ? number : r.nextInt(filter.size()) : argsCount <= 2 ? Integer.parseInt(messageArray[2]) : r.nextInt(filter.size());
+			} catch (IndexOutOfBoundsException e) {
+				get = r.nextInt(filter.size());
+			} catch (IllegalArgumentException e) {
+				if (e.getMessage().equals("bound must be positive"))
+					return builder.setDescription("No results found.");
+				else return builder.setDescription("Query not valid.");
+			}
+
+			String AUTHOR = filter.get(get).getAuthor();
+			String tags = filter.get(get).getTags().stream().collect(Collectors.joining(", "));
+
+			if (!smallRequest) {
+				return builder.setAuthor("Found image", filter.get(get).getFile_url(), null)
+					.setDescription("Image uploaded by: " + (AUTHOR == null ? "not found" : AUTHOR) + ", with a rating of: **" + nRating.inverseBidiMap().get(filter.get(get).getRating()) + "**")
+					.setImage(filter.get(get).getFile_url())
+					.addField("Height", String.valueOf(filter.get(get).getHeight()), true)
+					.addField("Width", String.valueOf(filter.get(get).getWidth()), true)
+					.addField("Tags", "``" + (tags == null ? "None" : tags) + "``", false)
+					.setFooter("If the image doesn't load, click the title.", null);
+			}
+
+			return builder.setAuthor("Found image", filter.get(get).getFile_url(), null)
+				.setDescription("Image uploaded by: " + (AUTHOR == null ? "not found" : AUTHOR) + ", with a rating of: **" + nRating.inverseBidiMap().get(filter.get(get).getRating()) + "**")
+				.setImage(filter.get(get).getFile_url())
+				.addField("Width", String.valueOf(filter.get(get).getHeight()), true)
+				.addField("Height", String.valueOf(filter.get(get).getWidth()), true)
+				.addField("Tags", "``" + (tags == null ? "None" : tags) + "``", false)
+				.setFooter("If the image doesn't load, click the title.", null);
+		} catch (Exception ex) {
+			if (ex instanceof NullPointerException)
+				return builder.setDescription(EmoteReference.ERROR + "Wrong syntax.");
+			return builder.setDescription(EmoteReference.ERROR + "There are no images here, just dust.");
+		}
 	}
 }

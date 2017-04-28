@@ -18,8 +18,8 @@ import java.util.Random;
 public class FunCmds {
 
 	@Event
-	public static void coinflip(CommandRegistry cr) {
-		cr.register("coinflip", new SimpleCommand(Category.FUN) {
+	public static void coinflip(CommandRegistry registry) {
+		registry.register("coinflip", new SimpleCommand(Category.FUN) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				int times;
@@ -59,8 +59,8 @@ public class FunCmds {
 	}
 
 	@Event
-	public static void dice(CommandRegistry cr) {
-		cr.register("roll", new SimpleCommand(Category.FUN) {
+	public static void dice(CommandRegistry registry) {
+		registry.register("roll", new SimpleCommand(Category.FUN) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				int roll;

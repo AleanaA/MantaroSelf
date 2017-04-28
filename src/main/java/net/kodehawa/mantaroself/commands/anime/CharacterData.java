@@ -1,4 +1,4 @@
-package net.kodehawa.mantaroself.commands.utils.data;
+package net.kodehawa.mantaroself.commands.anime;
 
 public class CharacterData {
 	public Boolean favourite = null;

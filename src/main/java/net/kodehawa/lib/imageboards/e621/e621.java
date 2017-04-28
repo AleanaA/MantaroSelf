@@ -1,13 +1,13 @@
 package net.kodehawa.lib.imageboards.e621;
 
 import br.com.brjdevs.java.utils.extensions.Async;
-import com.rethinkdb.model.MapObject;
 import lombok.extern.slf4j.Slf4j;
 import net.kodehawa.lib.imageboards.e621.main.entities.Furry;
 import net.kodehawa.lib.imageboards.e621.providers.FurryProvider;
 import net.kodehawa.lib.imageboards.konachan.Konachan;
-import net.kodehawa.mantarobot.utils.Utils;
-import net.kodehawa.mantarobot.utils.data.GsonDataManager;
+import net.kodehawa.mantaroself.utils.MapObject;
+import net.kodehawa.mantaroself.utils.Utils;
+import net.kodehawa.mantaroself.utils.data.GsonDataManager;
 import us.monoid.web.Resty;
 
 import java.util.Arrays;

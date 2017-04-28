@@ -6,9 +6,9 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.lib.google.Crawler;
-import net.kodehawa.mantaroself.commands.utils.data.UrbanData;
-import net.kodehawa.mantaroself.commands.utils.data.WeatherData;
-import net.kodehawa.mantaroself.commands.utils.data.YoutubeMp3Info;
+import net.kodehawa.mantaroself.commands.utils.UrbanData;
+import net.kodehawa.mantaroself.commands.utils.WeatherData;
+import net.kodehawa.mantaroself.commands.utils.YoutubeMp3Info;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
 import net.kodehawa.mantaroself.modules.Event;
 import net.kodehawa.mantaroself.modules.Module;
@@ -79,8 +79,8 @@ public class UtilsCmds {
 	}
 
 	@Event
-	public static void googleSearch(CommandRegistry cr) {
-		cr.register("google", new SimpleCommand(Category.UTILS) {
+	public static void googleSearch(CommandRegistry registry) {
+		registry.register("google", new SimpleCommand(Category.UTILS) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				StringBuilder b = new StringBuilder();
@@ -114,8 +114,8 @@ public class UtilsCmds {
 	}
 
 	@Event
-	public static void time(CommandRegistry cr) {
-		cr.register("time", new SimpleCommand(Category.UTILS) {
+	public static void time(CommandRegistry registry) {
+		registry.register("time", new SimpleCommand(Category.UTILS) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				try {
@@ -141,10 +141,10 @@ public class UtilsCmds {
 	}
 
 	@Event
-	public static void translate(CommandRegistry cr) {
+	public static void translate(CommandRegistry registry) {
 		Resty resty = new Resty().identifyAsMozilla();
 
-		cr.register("translate", new SimpleCommand(Category.UTILS) {
+		registry.register("translate", new SimpleCommand(Category.UTILS) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				try {
@@ -203,8 +203,8 @@ public class UtilsCmds {
 	}
 
 	@Event
-	public static void urban(CommandRegistry cr) {
-		cr.register("urban", new SimpleCommand(Category.UTILS) {
+	public static void urban(CommandRegistry registry) {
+		registry.register("urban", new SimpleCommand(Category.UTILS) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				String beheadedSplit[] = content.split("->");
@@ -298,13 +298,13 @@ public class UtilsCmds {
 	}
 
 	@Event
-	public static void weather(CommandRegistry cr) {
+	public static void weather(CommandRegistry registry) {
 		if (config().get().weatherAppId() == null) {
 			log.info("OpenWeatherMap AppId not defined. Weather Command will not load.");
 			return;
 		}
 
-		cr.register("weather", new SimpleCommand(Category.UTILS) {
+		registry.register("weather", new SimpleCommand(Category.UTILS) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				if (content.isEmpty()) {
@@ -368,8 +368,8 @@ public class UtilsCmds {
 	}
 
 	@Event
-	public static void ytmp3(CommandRegistry cr) {
-		cr.register("ytmp3", new SimpleCommand(Category.UTILS) {
+	public static void ytmp3(CommandRegistry registry) {
+		registry.register("ytmp3", new SimpleCommand(Category.UTILS) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				YoutubeMp3Info info = YoutubeMp3Info.forLink(content);

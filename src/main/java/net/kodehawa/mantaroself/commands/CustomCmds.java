@@ -106,10 +106,10 @@ public class CustomCmds {
 	};
 
 	@Event
-	public static void custom(CommandRegistry cr) {
+	public static void custom(CommandRegistry registry) {
 		Pattern addPattern = Pattern.compile(";", Pattern.LITERAL);
 
-		cr.register("custom", new SimpleCommand(Category.UTILS) {
+		registry.register("custom", new SimpleCommand(Category.UTILS) {
 			@Override
 			public void call(MessageReceivedEvent event, String content, String[] args) {
 				if (args.length < 1) {

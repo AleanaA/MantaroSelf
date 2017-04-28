@@ -20,7 +20,6 @@ import net.kodehawa.mantaroself.modules.commands.SimpleCommand;
 import net.kodehawa.mantaroself.modules.commands.base.Category;
 import net.kodehawa.mantaroself.modules.commands.base.Command;
 import net.kodehawa.mantaroself.modules.events.PostLoadEvent;
-import net.kodehawa.mantaroself.utils.DiscordUtils;
 import net.kodehawa.mantaroself.utils.Utils;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 
@@ -36,14 +35,13 @@ import static net.kodehawa.mantaroself.commands.info.HelpUtils.forType;
 import static net.kodehawa.mantaroself.commands.info.StatsHelper.calculateDouble;
 import static net.kodehawa.mantaroself.commands.info.StatsHelper.calculateInt;
 import static net.kodehawa.mantaroself.data.MantaroData.data;
-import static net.kodehawa.mantaroself.utils.DiscordUtils.usersMentioned;
+import static net.kodehawa.mantaroself.utils.DiscordUtils.*;
 
 @Module
 public class InfoCmds {
-
 	@Event
-	public static void about(CommandRegistry cr) {
-		cr.register("about", new SimpleCommand(Category.INFO) {
+	public static void about(CommandRegistry registry) {
+		registry.register("about", new SimpleCommand(Category.INFO) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				List<Guild> guilds = MantaroSelf.instance().getGuilds();
@@ -75,7 +73,7 @@ public class InfoCmds {
 							"**Text/Voice Channels**: " + tcCount + "/" + vcCount + "\n",
 						false
 					)
-					.setFooter(String.format("Invite link: http://polr.me/mantaro (Commands this session: %s)", CommandListener.getCommandTotal()), event.getJDA().getSelfUser().getAvatarUrl())
+					.setFooter("Commands this session: " + CommandListener.getCommandTotal(), event.getJDA().getSelfUser().getAvatarUrl())
 					.build()
 				).queue();
 			}
@@ -91,8 +89,8 @@ public class InfoCmds {
 	}
 
 	@Event
-	public static void avatar(CommandRegistry cr) {
-		cr.register("avatar", new SimpleCommand(Category.INFO) {
+	public static void avatar(CommandRegistry registry) {
+		registry.register("avatar", new SimpleCommand(Category.INFO) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				List<User> mentioned = usersMentioned(event.getMessage());
@@ -113,8 +111,8 @@ public class InfoCmds {
 	}
 
 	@Event
-	public static void guildinfo(CommandRegistry cr) {
-		cr.register("guildinfo", new SimpleCommand(Category.INFO) {
+	public static void guildinfo(CommandRegistry registry) {
+		registry.register("guildinfo", new SimpleCommand(Category.INFO) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				TextChannel channel = event.getTextChannel();
@@ -131,8 +129,7 @@ public class InfoCmds {
 					.map(Role::getName)
 					.collect(Collectors.joining(", "));
 
-				if (roles.length() > 1024)
-					roles = roles.substring(0, 1024 - 4) + "...";
+				if (roles.length() > 1024) roles = roles.substring(0, 1024 - 4) + "...";
 
 				channel.sendMessage(new EmbedBuilder()
 					.setAuthor("Server Information", null, guild.getIconUrl())
@@ -144,7 +141,7 @@ public class InfoCmds {
 					.addField("Creation Date", guild.getCreationTime().format(DateTimeFormatter.ISO_DATE_TIME).replaceAll("[^0-9.:-]", " "), true)
 					.addField("Voice/Text Channels", guild.getVoiceChannels().size() + "/" + guild.getTextChannels().size(), true)
 					.addField("Owner", guild.getOwner().getUser().getName() + "#" + guild.getOwner().getUser().getDiscriminator(), true)
-					.addField("Region", guild.getRegion() == null ? "Unknown." : guild.getRegion().getName(), true)
+					.addField("Region", guild.getRegion() == null ? "Unknown" : guild.getRegion().getName(), true)
 					.addField("Roles (" + guild.getRoles().size() + ")", roles, false)
 					.setFooter("Server ID: " + String.valueOf(guild.getId()), null)
 					.build()
@@ -162,7 +159,7 @@ public class InfoCmds {
 	}
 
 	@Event
-	public static void help(CommandRegistry cr) {
+	public static void help(CommandRegistry registry) {
 		Random r = new Random();
 		List<String> jokes = Collections.unmodifiableList(Arrays.asList(
 			"Yo damn I heard you like help, because you just issued the help command to get the help about the help command.",
@@ -172,7 +169,7 @@ public class InfoCmds {
 			"A help helping helping helping help."
 		));
 
-		cr.register("help", new SimpleCommand(Category.INFO) {
+		registry.register("help", new SimpleCommand(Category.INFO) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				if (content.isEmpty()) {
@@ -217,8 +214,8 @@ public class InfoCmds {
 	}
 
 	@Event
-	public static void info(CommandRegistry cr) {
-		cr.register("info", new SimpleCommand(Category.INFO) {
+	public static void info(CommandRegistry registry) {
+		registry.register("info", new SimpleCommand(Category.INFO) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				List<Guild> guilds = MantaroSelf.instance().getGuilds();
@@ -255,28 +252,30 @@ public class InfoCmds {
 	}
 
 	@Event
-	public static void ping(CommandRegistry cr) {
-		cr.register("ping", new SimpleCommand(Category.INFO) {
+	public static void ping(CommandRegistry registry) {
+		registry.register("ping", new SimpleCommand(Category.INFO) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 
 				long start = System.currentTimeMillis();
 				event.getChannel().sendTyping().queue(v -> {
 					long ping = System.currentTimeMillis() - start;
-					event.getChannel().sendMessage(EmoteReference.MEGA + "My ping: " + ping + " ms - " + ratePing(ping) + "  `Websocket:" + event.getJDA().getPing() + "ms`").queue();
+					event.getChannel().sendMessage(String.format("%s**Ping**: `%dms/%dms` (API/Websocket)", EmoteReference.MEGA, ping, event.getJDA().getPing())).queue();
 				});
 			}
 
 			@Override
 			public MessageEmbed help(MessageReceivedEvent event) {
-				return helpEmbed(event, "Ping Command").addField("Description:", "Plays Ping-Pong with Discord and prints out the result.", false).build();
+				return helpEmbed(event, "Ping Command")
+					.addField("Description:", "Plays Ping-Pong with Discord and prints out the result.", false)
+					.build();
 			}
 		});
 	}
 
 	@Event
-	public static void stats(CommandRegistry cr) {
-		cr.register("stats", new SimpleCommand(Category.INFO) {
+	public static void stats(CommandRegistry registry) {
+		registry.register("stats", new SimpleCommand(Category.INFO) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				if (content.isEmpty()) {
@@ -326,7 +325,7 @@ public class InfoCmds {
 
 				if (args[0].equals("host")) {
 					EmbedBuilder embedBuilder = new EmbedBuilder()
-						.setAuthor("Mantaro's VPS information", null, "https://puu.sh/sMsVC/576856f52b.png")
+						.setAuthor("Selfbot's Host Information", null, "https://puu.sh/sMsVC/576856f52b.png")
 						.setThumbnail("https://puu.sh/suxQf/e7625cd3cd.png")
 						.addField("CPU Usage", String.format("%.2f", getVpsCPUUsage()) + "%", true)
 						.addField("RAM (TOTAL/FREE/USED)", String.format("%.2f", getVpsMaxMemory()) + "GB/" + String.format("%.2f", getVpsFreeMemory())
@@ -379,15 +378,15 @@ public class InfoCmds {
 			public MessageEmbed help(MessageReceivedEvent event) {
 				return helpEmbed(event, "Statistics command")
 					.setDescription("See the bot, usage or host statistics")
-					.addField("Usage", prefix() + "stats <usage/host/cmds/guilds>", true)
+					.addField("Usage", prefix() + "stats <usage/host/cmds>", true)
 					.build();
 			}
 		});
 	}
 
 	@Event
-	public static void userinfo(CommandRegistry cr) {
-		cr.register("userinfo", new SimpleCommand(Category.INFO) {
+	public static void userinfo(CommandRegistry registry) {
+		registry.register("userinfo", new SimpleCommand(Category.INFO) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				List<User> mentionedUsers = usersMentioned(event.getMessage());
@@ -399,8 +398,8 @@ public class InfoCmds {
 					.setThumbnail(user.getAvatarUrl()).addField("Account Created:", user.getCreationTime().format(DateTimeFormatter.ISO_DATE).replace("Z", ""), true)
 					.setFooter("User ID: " + user.getId(), null);
 
-				Game game = DiscordUtils.game(user, member);
-				OnlineStatus status = DiscordUtils.status(user, member);
+				Game game = game(user, member);
+				OnlineStatus status = status(user, member);
 
 				embed.addField("Playing:", game == null ? "None" : game.getName(), false)
 					.addField("Status:", Utils.capitalize((status != null ? status : OnlineStatus.UNKNOWN).getKey().toLowerCase()), true);
@@ -431,23 +430,5 @@ public class InfoCmds {
 					.build();
 			}
 		});
-	}
-
-	private static String ratePing(long ping) {
-		if (ping <= 1) return "supersonic speed! :upside_down:"; //just in case...
-		if (ping <= 10) return "faster than Sonic! :smiley:";
-		if (ping <= 100) return "great! :smiley:";
-		if (ping <= 200) return "nice! :slight_smile:";
-		if (ping <= 300) return "decent. :neutral_face:";
-		if (ping <= 400) return "average... :confused:";
-		if (ping <= 500) return "slightly slow. :slight_frown:";
-		if (ping <= 600) return "kinda slow.. :frowning2:";
-		if (ping <= 700) return "slow.. :worried:";
-		if (ping <= 800) return "too slow. :disappointed:";
-		if (ping <= 800) return "awful. :weary:";
-		if (ping <= 900) return "bad. :sob: (helpme)";
-		if (ping <= 1600) return "#BlameDiscord. :angry:";
-		if (ping <= 10000) return "this makes no sense :thinking: #BlameSteven";
-		return "slow af. :dizzy_face: ";
 	}
 }

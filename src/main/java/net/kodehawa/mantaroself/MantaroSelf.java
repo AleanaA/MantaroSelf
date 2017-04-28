@@ -35,9 +35,6 @@ import static net.kodehawa.mantaroself.data.MantaroData.config;
 @Slf4j
 @Accessors(fluent = true)
 public class MantaroSelf implements JDA {
-
-	@Getter
-	public static final boolean debug = System.getProperty("mantaro.debug", null) != null;
 	@Getter
 	private static MantaroSelf instance;
 	@Getter

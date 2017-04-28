@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.kodehawa.lib.imageboards.konachan.main.entities.Tag;
 import net.kodehawa.lib.imageboards.konachan.main.entities.Wallpaper;
 import net.kodehawa.lib.imageboards.konachan.providers.WallpaperProvider;
-import net.kodehawa.mantarobot.utils.Utils;
-import net.kodehawa.mantarobot.utils.data.GsonDataManager;
+import net.kodehawa.mantaroself.utils.Utils;
+import net.kodehawa.mantaroself.utils.data.GsonDataManager;
 import us.monoid.web.Resty;
 
 import java.util.Arrays;

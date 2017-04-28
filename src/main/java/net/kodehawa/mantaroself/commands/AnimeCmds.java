@@ -8,8 +8,8 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.kodehawa.mantaroself.MantaroInfo;
-import net.kodehawa.mantaroself.commands.utils.data.AnimeData;
-import net.kodehawa.mantaroself.commands.utils.data.CharacterData;
+import net.kodehawa.mantaroself.commands.anime.AnimeData;
+import net.kodehawa.mantaroself.commands.anime.CharacterData;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
 import net.kodehawa.mantaroself.modules.Event;
 import net.kodehawa.mantaroself.modules.Module;
@@ -35,36 +35,6 @@ public class AnimeCmds {
 	private static final String CLIENT = config().get().aniListClient(), SECRET = config().get().aniListSecret();
 	public static String authToken;
 
-	private static void animeData(MessageReceivedEvent event, AnimeData type) {
-		String ANIME_TITLE = type.getTitle_english();
-		String RELEASE_DATE = StringUtils.substringBefore(type.getStart_date(), "T");
-		String END_DATE = StringUtils.substringBefore(type.getEnd_date(), "T");
-		String ANIME_DESCRIPTION = type.getDescription().replaceAll("<br>", "\n");
-		String AVERAGE_SCORE = type.getAverage_score();
-		String IMAGE_URL = type.getImage_url_lge();
-		String TYPE = Utils.capitalize(type.getSeries_type());
-		String EPISODES = type.getTotal_episodes().toString();
-		String DURATION = type.getDuration().toString();
-		String GENRES = type.getGenres().stream().collect(Collectors.joining(", "));
-
-		//Start building the embedded message.
-		EmbedBuilder embed = new EmbedBuilder();
-		embed.setColor(Color.LIGHT_GRAY)
-			.setAuthor("Anime information for " + ANIME_TITLE, "http://anilist.co/anime/"
-				+ type.getId(), type.getImage_url_sml())
-			.setFooter("Information provided by AniList", null)
-			.setThumbnail(IMAGE_URL)
-			.addField("Description: ", ANIME_DESCRIPTION.length() <= 1024 ? ANIME_DESCRIPTION : ANIME_DESCRIPTION.substring(0, 1020) + "...", false)
-			.addField("Release date: ", RELEASE_DATE, true)
-			.addField("End date: ", END_DATE, true)
-			.addField("Average score: ", AVERAGE_SCORE + "/100", true)
-			.addField("Type", TYPE, true)
-			.addField("Episodes", EPISODES, true)
-			.addField("Episode Duration", DURATION + " minutes.", true)
-			.addField("Genres", GENRES, false);
-		event.getChannel().sendMessage(embed.build()).queue();
-	}
-
 	/**
 	 * returns the new AniList access token.
 	 */
@@ -84,24 +54,6 @@ public class AnimeCmds {
 		}
 	}
 
-	private static void characterData(MessageReceivedEvent event, CharacterData character) {
-		String JAP_NAME = character.getName_japanese() == null ? "" : "\n(" + character.getName_japanese() + ")";
-		String CHAR_NAME = character.getName_first() + " " + character.getName_last() + JAP_NAME;
-		String ALIASES = character.getName_alt() == null ? "No aliases" : "Also known as: " + character.getName_alt();
-		String IMAGE_URL = character.getImage_url_med();
-		String CHAR_DESCRIPTION = character.getInfo().isEmpty() ? "No info."
-			: character.getInfo().length() <= 1024 ? character.getInfo() : character.getInfo().substring(0, 1020 - 1) + "...";
-		EmbedBuilder embed = new EmbedBuilder();
-		embed.setColor(Color.LIGHT_GRAY)
-			.setThumbnail(IMAGE_URL)
-			.setAuthor("Information for " + CHAR_NAME, "http://anilist.co/character/" + character.getId(), IMAGE_URL)
-			.setDescription(ALIASES)
-			.addField("Information", CHAR_DESCRIPTION, true)
-			.setFooter("Information provided by AniList", null);
-
-		event.getChannel().sendMessage(embed.build()).queue();
-	}
-
 	@Event
 	public static void onPostLoad(PostLoadEvent event) {
 		if (config().get().aniListClient() == null || config().get().aniListSecret() == null) return;
@@ -109,13 +61,13 @@ public class AnimeCmds {
 	}
 
 	@Event
-	public static void registerCommands(CommandRegistry cr) {
+	public static void registerCommands(CommandRegistry registry) {
 		if (config().get().aniListClient() == null || config().get().aniListSecret() == null) {
 			log.info("AniList Client/Secret not defined. Anime Commands will not load.");
 			return;
 		}
 
-		cr.register("anime", new SimpleCommand(Category.FUN) {
+		registry.register("anime", new SimpleCommand(Category.FUN) {
 			@Override
 			public void call(MessageReceivedEvent event, String content, String[] args) {
 				try {
@@ -159,7 +111,7 @@ public class AnimeCmds {
 
 		});
 
-		cr.register("character", new SimpleCommand(Category.FUN) {
+		registry.register("character", new SimpleCommand(Category.FUN) {
 			@Override
 			public void call(MessageReceivedEvent event, String content, String[] args) {
 				try {
@@ -198,5 +150,53 @@ public class AnimeCmds {
 					.build();
 			}
 		});
+	}
+
+	private static void animeData(MessageReceivedEvent event, AnimeData type) {
+		String ANIME_TITLE = type.getTitle_english();
+		String RELEASE_DATE = StringUtils.substringBefore(type.getStart_date(), "T");
+		String END_DATE = StringUtils.substringBefore(type.getEnd_date(), "T");
+		String ANIME_DESCRIPTION = type.getDescription().replaceAll("<br>", "\n");
+		String AVERAGE_SCORE = type.getAverage_score();
+		String IMAGE_URL = type.getImage_url_lge();
+		String TYPE = Utils.capitalize(type.getSeries_type());
+		String EPISODES = type.getTotal_episodes().toString();
+		String DURATION = type.getDuration().toString();
+		String GENRES = type.getGenres().stream().collect(Collectors.joining(", "));
+
+		//Start building the embedded message.
+		EmbedBuilder embed = new EmbedBuilder();
+		embed.setColor(Color.LIGHT_GRAY)
+			.setAuthor("Anime information for " + ANIME_TITLE, "http://anilist.co/anime/"
+				+ type.getId(), type.getImage_url_sml())
+			.setFooter("Information provided by AniList", null)
+			.setThumbnail(IMAGE_URL)
+			.addField("Description: ", ANIME_DESCRIPTION.length() <= 1024 ? ANIME_DESCRIPTION : ANIME_DESCRIPTION.substring(0, 1020) + "...", false)
+			.addField("Release date: ", RELEASE_DATE, true)
+			.addField("End date: ", END_DATE, true)
+			.addField("Average score: ", AVERAGE_SCORE + "/100", true)
+			.addField("Type", TYPE, true)
+			.addField("Episodes", EPISODES, true)
+			.addField("Episode Duration", DURATION + " minutes.", true)
+			.addField("Genres", GENRES, false);
+		event.getChannel().sendMessage(embed.build()).queue();
+	}
+
+	private static void characterData(MessageReceivedEvent event, CharacterData character) {
+		String JAP_NAME = character.getName_japanese() == null ? "" : "\n(" + character.getName_japanese() + ")";
+		String CHAR_NAME = character.getName_first() + " " + character.getName_last() + JAP_NAME;
+		String ALIASES = character.getName_alt() == null ? "No aliases" : "Also known as: " + character.getName_alt();
+		String IMAGE_URL = character.getImage_url_med();
+		String CHAR_DESCRIPTION = character.getInfo().isEmpty() ? "No info."
+			: character.getInfo().length() <= 1024 ? character.getInfo() : character.getInfo().substring(0, 1020 - 1) + "...";
+		EmbedBuilder embed = new EmbedBuilder();
+		embed.setColor(Color.LIGHT_GRAY)
+			.setThumbnail(IMAGE_URL)
+			.setAuthor("Information for " + CHAR_NAME, "http://anilist.co/character/" + character.getId(), IMAGE_URL)
+			.setDescription(ALIASES)
+			.addField("Information", CHAR_DESCRIPTION, true)
+			.setFooter("Information provided by AniList", null);
+
+		event.getChannel().sendMessage(embed.build()).queue();
 	}
 }

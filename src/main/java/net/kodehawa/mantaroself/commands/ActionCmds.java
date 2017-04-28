@@ -150,33 +150,33 @@ public class ActionCmds {
 	}
 
 	@Event
-	public static void register(CommandRegistry cr) {
+	public static void register(CommandRegistry registry) {
 
 		//pat();
-		cr.register("pat", new ImageActionCmd(
+		registry.register("pat", new ImageActionCmd(
 			"Pat", "Pats the specified user.",
 			"pat.gif", EmoteReference.TALKING + "%s you have been patted by %s", PATS.get()));
 
 		//hug();
-		cr.register("hug", new ImageActionCmd(
+		registry.register("hug", new ImageActionCmd(
 			"Hug", "Hugs the specified user.",
 			"hug.gif", EmoteReference.TALKING + "%s you have been hugged by %s", HUGS.get()
 		));
 
 		//kiss();
-		cr.register("kiss", new ImageActionCmd(
+		registry.register("kiss", new ImageActionCmd(
 			"Kiss", "Kisses the specified user.",
 			"kiss.gif", EmoteReference.TALKING + "%s you have been kissed by %s", KISSES.get()
 		));
 
 		//greet();
-		cr.register("greet", new TextActionCmd(
+		registry.register("greet", new TextActionCmd(
 			"Greet", "Sends a random greeting",
 			EmoteReference.TALKING + "%s", GREETINGS.get()
 		));
 
 		//tsundere();
-		cr.register("tsundere", new TextActionCmd(
+		registry.register("tsundere", new TextActionCmd(
 			"Tsundere Command", "Y-You baka!",
 			EmoteReference.MEGA + "%s", TSUNDERE.get()
 		));

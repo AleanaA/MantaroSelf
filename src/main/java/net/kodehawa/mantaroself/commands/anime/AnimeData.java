@@ -1,4 +1,4 @@
-package net.kodehawa.mantaroself.commands.utils.data;
+package net.kodehawa.mantaroself.commands.anime;
 
 import java.util.List;
 

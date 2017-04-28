@@ -4,7 +4,7 @@ import br.com.brjdevs.java.utils.extensions.Async;
 import com.mashape.unirest.http.Unirest;
 import net.kodehawa.lib.imageboards.rule34.entities.Hentai;
 import net.kodehawa.lib.imageboards.rule34.providers.HentaiProvider;
-import net.kodehawa.mantarobot.utils.Utils;
+import net.kodehawa.mantaroself.utils.Utils;
 
 import java.util.Arrays;
 import java.util.HashMap;

@@ -25,8 +25,8 @@ public class MiscCmds {
 	public static final DataManager<List<String>> facts = new SimpleFileDataManager("assets/mantaroself/texts/facts.txt");
 
 	@Event
-	public static void eightBall(CommandRegistry cr) {
-		cr.register("8ball", new SimpleCommand(Category.MISC) {
+	public static void eightBall(CommandRegistry registry) {
+		registry.register("8ball", new SimpleCommand(Category.MISC) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				if (content.isEmpty()) {
@@ -66,8 +66,8 @@ public class MiscCmds {
 	}
 
 	@Event
-	public static void randomFact(CommandRegistry cr) {
-		cr.register("randomfact", new SimpleCommand(Category.MISC) {
+	public static void randomFact(CommandRegistry registry) {
+		registry.register("randomfact", new SimpleCommand(Category.MISC) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				event.getChannel().sendMessage(EmoteReference.TALKING + facts.get().get(new Random().nextInt(facts.get().size() - 1))).queue();

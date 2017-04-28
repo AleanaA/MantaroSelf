@@ -12,7 +12,7 @@ import net.kodehawa.lib.imageboards.e621.e621;
 import net.kodehawa.lib.imageboards.konachan.Konachan;
 import net.kodehawa.lib.imageboards.konachan.main.entities.Wallpaper;
 import net.kodehawa.lib.imageboards.rule34.Rule34;
-import net.kodehawa.mantaroself.commands.utils.data.ImageData;
+import net.kodehawa.mantaroself.commands.image.YandereImageData;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
 import net.kodehawa.mantaroself.modules.Event;
 import net.kodehawa.mantaroself.modules.Module;
@@ -59,8 +59,8 @@ public class ImageCmds {
 	private static String tagsToEncode = "no";
 
 	@Event
-	public static void cat(CommandRegistry cr) {
-		cr.register("cat", new SimpleCommand(Category.IMAGE) {
+	public static void cat(CommandRegistry registry) {
+		registry.register("cat", new SimpleCommand(Category.IMAGE) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				try {
@@ -82,8 +82,8 @@ public class ImageCmds {
 	}
 
 	@Event
-	public static void catgirls(CommandRegistry cr) {
-		cr.register("catgirl", new SimpleCommand(Category.IMAGE) {
+	public static void catgirls(CommandRegistry registry) {
+		registry.register("catgirl", new SimpleCommand(Category.IMAGE) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				boolean nsfw = args.length > 0 && args[0].equalsIgnoreCase("nsfw");
@@ -115,8 +115,8 @@ public class ImageCmds {
 	}
 
 	@Event
-	public static void e621(CommandRegistry cr) {
-		cr.register("e621", new SimpleCommand(Category.IMAGE) {
+	public static void e621(CommandRegistry registry) {
+		registry.register("e621", new SimpleCommand(Category.IMAGE) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 
@@ -217,8 +217,8 @@ public class ImageCmds {
 	}
 
 	@Event
-	public static void kona(CommandRegistry cr) {
-		cr.register("konachan", new SimpleCommand(Category.IMAGE) {
+	public static void kona(CommandRegistry registry) {
+		registry.register("konachan", new SimpleCommand(Category.IMAGE) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				MessageChannel channel = event.getChannel();
@@ -328,8 +328,8 @@ public class ImageCmds {
 	}
 
 	@Event
-	public static void rule34(CommandRegistry cr) {
-		cr.register("rule34", new SimpleCommand(Category.IMAGE) {
+	public static void rule34(CommandRegistry registry) {
+		registry.register("rule34", new SimpleCommand(Category.IMAGE) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 
@@ -436,8 +436,8 @@ public class ImageCmds {
 	}
 
 	@Event
-	public static void yandere(CommandRegistry cr) {
-		cr.register("yandere", new SimpleCommand(Category.IMAGE) {
+	public static void yandere(CommandRegistry registry) {
+		registry.register("yandere", new SimpleCommand(Category.IMAGE) {
 			@Override
 			protected void call(MessageReceivedEvent event, String content, String[] args) {
 				rating = "s";
@@ -507,8 +507,8 @@ public class ImageCmds {
 
 		String json = Utils.wget(url);
 		try {
-			ImageData[] imageData = GsonDataManager.GSON_PRETTY.fromJson(json, ImageData[].class);
-			List<ImageData> filter = new ArrayList<>(Arrays.asList(imageData)).stream().filter(data -> rating.equals(data.rating)).collect(Collectors.toList());
+			YandereImageData[] imageData = GsonDataManager.GSON_PRETTY.fromJson(json, YandereImageData[].class);
+			List<YandereImageData> filter = new ArrayList<>(Arrays.asList(imageData)).stream().filter(data -> rating.equals(data.rating)).collect(Collectors.toList());
 			int get;
 			try {
 				get = requestType.equals("tags") ? argsCount >= 4 ? number : r.nextInt(filter.size()) : argsCount <= 2 ? Integer.parseInt(messageArray[2]) : r.nextInt(filter.size());

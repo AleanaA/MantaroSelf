@@ -1,5 +1,8 @@
 package net.kodehawa.mantaroself.modules.commands.base;
 
+/**
+ * A Command's Category. Utilized in the Help command.
+ */
 public enum Category {
 	ACTION("Action"),
 	IMAGE("Image"),

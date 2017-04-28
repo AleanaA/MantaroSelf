@@ -17,11 +17,7 @@ plugins {
 }
 
 //Define the Main Class
-ext {
-	bootClass = "net.kodehawa.mantaroself.MantaroSelf"
-}
-
-mainClassName = bootClass
+mainClassName = "net.kodehawa.mantaroself.MantaroSelf"
 
 //Use an unified versioning system
 def ver = new Version(major: 1, minor: 2, revision: 0)
@@ -36,7 +32,7 @@ repositories {
 }
 
 dependencies {
-	compile 'net.dv8tion:JDA:3.0.0_176'
+	compile 'net.dv8tion:JDA:3.0.0_187'
 
 	compile 'org.reflections:reflections:0.9.10'
 	compile 'ch.qos.logback:logback-classic:0.9.26'
@@ -48,7 +44,7 @@ dependencies {
 	compile 'us.monoid.web:resty:0.3.2'
 	compile group: 'org.jsoup', name: 'jsoup', version: '1.8.3'
 
-	compile 'br.com.brjdevs:utils:1.0.0_8'
+	compile 'br.com.brjdevs:utils:1.0.0_13'
 
 	compile 'com.google.guava:guava:19.0'
 	compile 'com.google.code.gson:gson:2.8.0'
@@ -124,7 +120,7 @@ class Version {
 	String major, minor, revision
 
 	static String getBuild() {
-		return new Date().format('ddMMyyyy')
+		System.getenv("BUILD_NUMBER") ?: System.getProperty("BUILD_NUMBER") ?: "DEV-" + new Date().format('ddMMyyyy')
 	}
 
 	String toString() {

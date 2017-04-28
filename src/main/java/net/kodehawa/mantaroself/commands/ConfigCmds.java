@@ -3,7 +3,6 @@ package net.kodehawa.mantaroself.commands;
 import bsh.Interpreter;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -11,10 +10,8 @@ import net.kodehawa.mantaroself.MantaroSelf;
 import net.kodehawa.mantaroself.modules.CommandRegistry;
 import net.kodehawa.mantaroself.modules.Event;
 import net.kodehawa.mantaroself.modules.Module;
-import net.kodehawa.mantaroself.modules.commands.NoArgsCommand;
 import net.kodehawa.mantaroself.modules.commands.SimpleCommand;
 import net.kodehawa.mantaroself.modules.commands.base.Category;
-import net.kodehawa.mantaroself.utils.Utils;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 
 import javax.script.ScriptEngine;
@@ -24,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static br.com.brjdevs.java.utils.extensions.CollectionUtils.random;
 import static net.kodehawa.mantaroself.MantaroSelf.prefix;
@@ -226,35 +222,6 @@ public class ConfigCmds {
 			@Override
 			public String[] splitArgs(String content) {
 				return SPLIT_PATTERN.split(content, 2);
-			}
-		});
-
-		registry.register("presence", new NoArgsCommand(Category.SELF) {
-			@Override
-			protected void call(MessageReceivedEvent event, String content) {
-				OnlineStatus status = OnlineStatus.fromKey(content);
-				if (status == OnlineStatus.UNKNOWN) {
-					onHelp(event);
-					return;
-				}
-
-				event.getJDA().getPresence().setStatus(status);
-				event.getMessage().getTextChannel().sendMessage("Now " + Utils.capitalize(status.getKey()) + "!").queue();
-			}
-
-			@Override
-			public MessageEmbed help(MessageReceivedEvent event) {
-				return helpEmbed(event, "Presence Command")
-					.setDescription("Set the Selfbot's Presence.\n" +
-						"**Usage**\n" +
-						prefix() + "presence <" +
-						Stream.of(OnlineStatus.values())
-							.filter(s -> s != OnlineStatus.UNKNOWN)
-							.map(OnlineStatus::getKey)
-							.collect(Collectors.joining("/")) +
-						">"
-					)
-					.build();
 			}
 		});
 	}

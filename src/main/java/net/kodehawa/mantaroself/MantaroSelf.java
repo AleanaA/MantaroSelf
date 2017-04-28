@@ -5,10 +5,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.JDAInfo;
+import net.dv8tion.jda.core.*;
 import net.kodehawa.mantaroself.core.CommandProcessor;
 import net.kodehawa.mantaroself.core.LoadState;
 import net.kodehawa.mantaroself.core.MantaroEventManager;
@@ -23,6 +20,7 @@ import net.kodehawa.mantaroself.modules.events.EventDispatcher;
 import net.kodehawa.mantaroself.modules.events.PostLoadEvent;
 import net.kodehawa.mantaroself.utils.CompactPrintStream;
 import org.reflections.Reflections;
+import org.reflections.scanners.MethodAnnotationsScanner;
 
 import java.lang.reflect.Method;
 import java.util.Set;
@@ -80,6 +78,7 @@ public class MantaroSelf implements JDA {
 		jda = new JDABuilder(AccountType.CLIENT)
 			.setAudioEnabled(false)
 			.setAutoReconnect(true)
+			.setStatus(OnlineStatus.INVISIBLE)
 			.setToken(config.token())
 			.setEventManager(new MantaroEventManager())
 			.addEventListener(new CommandListener(), InteractiveOperations.listener())
@@ -93,12 +92,17 @@ public class MantaroSelf implements JDA {
 		MantaroData.config().save();
 		MantaroData.data().save();
 
-		Set<Method> events = new Reflections(classes.get()).getMethodsAnnotatedWith(Event.class);
+		log.info("Loading commands...");
+
+		Set<Method> events = new Reflections(
+			classes.get(),
+			new MethodAnnotationsScanner())
+			.getMethodsAnnotatedWith(Event.class);
 
 		EventDispatcher.dispatch(events, CommandProcessor.REGISTRY);
 
 		status = POSTLOAD;
-		log.info("Finished loading basic components. Doing final loading...");
+		log.info("Finished loading commands. Doing final loading...");
 
 		EventDispatcher.dispatch(events, new PostLoadEvent());
 

@@ -1,5 +1,6 @@
 package net.kodehawa.mantaroself.commands;
 
+import br.com.brjdevs.java.utils.strings.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -16,7 +17,6 @@ import net.kodehawa.mantaroself.modules.commands.SimpleCommand;
 import net.kodehawa.mantaroself.modules.commands.base.Category;
 import net.kodehawa.mantaroself.utils.DiscordUtils;
 import net.kodehawa.mantaroself.utils.MapObject;
-import net.kodehawa.mantaroself.utils.StringUtils;
 import net.kodehawa.mantaroself.utils.Utils;
 import net.kodehawa.mantaroself.utils.commands.EmoteReference;
 import net.kodehawa.mantaroself.utils.data.GsonDataManager;
@@ -59,6 +59,11 @@ public class UtilsCmds {
 		registry.register("choose", new SimpleCommand(Category.UTILS) {
 			@Override
 			public void call(MessageReceivedEvent event, String content, String[] args) {
+				if (args.length < 1) {
+					onHelp(event);
+					return;
+				}
+
 				event.getChannel().sendMessage("I choose ``" + random(args) + "``").queue();
 			}
 
@@ -72,7 +77,7 @@ public class UtilsCmds {
 
 			@Override
 			public String[] splitArgs(String content) {
-				return StringUtils.advancedSplitArgs(content, -1);
+				return StringUtils.efficientSplitArgs(content, -1);
 			}
 
 		});

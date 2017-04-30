@@ -26,7 +26,7 @@ import java.util.stream.StreamSupport;
 import static org.apache.commons.lang3.StringUtils.replaceEach;
 
 public class DiscordUtils {
-	private static Pattern userMention = Pattern.compile("<@\\d+>");
+	private static Pattern userMention = Pattern.compile("<@!?\\d+>");
 
 	public static <T> Pair<String, Integer> embedList(List<T> list, Function<T, String> toString) {
 		StringBuilder b = new StringBuilder();

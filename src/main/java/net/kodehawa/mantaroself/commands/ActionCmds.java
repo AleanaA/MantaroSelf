@@ -30,6 +30,8 @@ public class ActionCmds {
 	public static final DataManager<List<String>> KISSES = new SimpleFileDataManager("assets/mantaroself/gifs/kisses.txt");
 	public static final DataManager<List<String>> NOBLE = new SimpleFileDataManager("assets/mantaroself/texts/noble.txt");
 	public static final DataManager<List<String>> PATS = new SimpleFileDataManager("assets/mantaroself/gifs/pats.txt");
+	public static final DataManager<List<String>> POKES = new SimpleFileDataManager("assets/mantaroself/gifs/pokes.txt");
+	public static final DataManager<List<String>> SLAPS = new SimpleFileDataManager("assets/mantaroself/gifs/slaps.txt");
 	public static final DataManager<List<String>> TSUNDERE = new SimpleFileDataManager("assets/mantaroself/texts/tsundere.txt");
 
 	@Event
@@ -167,6 +169,18 @@ public class ActionCmds {
 		registry.register("kiss", new ImageActionCmd(
 			"Kiss", "Kisses the specified user.",
 			"kiss.gif", EmoteReference.TALKING + "%s you have been kissed by %s", KISSES.get()
+		));
+
+		//poke();
+		registry.register("poke", new ImageActionCmd(
+			"Poke", "Pokes the specified user.",
+			"poke.gif", EmoteReference.TALKING + "%s you have been poked by %s :eyes:", POKES.get()
+		));
+
+		//slap();
+		registry.register("slap", new ImageActionCmd(
+			"Slap", "Slaps the specified user ;).",
+			"slap.gif", EmoteReference.TALKING + "%s you have been slapped by %s!", SLAPS.get()
 		));
 
 		//greet();

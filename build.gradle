@@ -20,7 +20,7 @@ plugins {
 mainClassName = "net.kodehawa.mantaroself.MantaroSelf"
 
 //Use an unified versioning system
-def ver = new Version(major: 1, minor: 2, revision: 0)
+def ver = new Version(major: 1, minor: 3, revision: 'BETA')
 version ver.toString()
 
 //We are going to use Java 8

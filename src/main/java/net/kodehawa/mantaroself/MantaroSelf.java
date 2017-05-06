@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.*;
+import net.kodehawa.mantaroself.assets.AssetManager;
 import net.kodehawa.mantaroself.core.CommandProcessor;
 import net.kodehawa.mantaroself.core.LoadState;
 import net.kodehawa.mantaroself.core.MantaroEventManager;
@@ -66,6 +67,8 @@ public class MantaroSelf implements JDA {
 	private MantaroSelf() throws Exception {
 		SimpleLogToSLF4JAdapter.install();
 		log.info("Starting a Mantaro-based Selfbot...");
+
+		AssetManager.verify();
 
 		Config config = MantaroData.config().get().ensureNonNull();
 

@@ -67,7 +67,8 @@ task prepareSource(type: Copy) {
 	from 'src/main/java'
 	into 'build/prepared-src'
 	filter(ReplaceTokens, tokens: [
-		version: ver.toString()
+		version: ver.toString(),
+		build: Version.build
 	])
 	dependsOn clean
 }
@@ -84,16 +85,21 @@ tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
 }
 
-task zip(dependsOn: shadowJar, type: Zip) {
-	from shadowJar
-	from("assets") { into "assets" }
-	classifier = "dist"
-}
+//task zip(dependsOn: shadowJar, type: Zip) {
+//	from shadowJar
+//	from("assets") { into "assets" }
+//	classifier = "dist"
+//}
+//
+//task tar(dependsOn: shadowJar, type: Tar) {
+//	from shadowJar
+//	from("assets") { into "assets" }
+//	classifier = "dist"
+//}
 
-task tar(dependsOn: shadowJar, type: Tar) {
-	from shadowJar
+task assets(dependsOn: clean, type: Zip) {
 	from("assets") { into "assets" }
-	classifier = "dist"
+	archiveName = "assets.zip"
 }
 
 task cleanDistTar(type: Delete) { delete files(distTar) }
@@ -110,10 +116,10 @@ jar.finalizedBy cleanShittyJar
 
 shadowJar { classifier = "" }
 
-build.dependsOn shadowJar, zip, tar
+build.dependsOn shadowJar, assets//zip, tar
 
 artifacts {
-	archives shadowJar, zip, tar
+	archives shadowJar, assets//zip, tar
 }
 
 class Version {

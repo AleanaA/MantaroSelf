@@ -1,8 +1,11 @@
 package net.kodehawa.mantaroself.assets;
 
 import com.mashape.unirest.http.Unirest;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.kodehawa.mantaroself.MantaroInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,11 +17,19 @@ import static net.kodehawa.mantaroself.MantaroInfo.BUILD;
 
 @Slf4j
 public class AssetManager {
-	public static void verify() {
-		log.info("Verifying Assets...");
+	public static String humanReadableByteCount(long bytes, boolean si) {
+		int unit = si ? 1000 : 1024;
+		if (bytes < unit) return bytes + " B";
+		int exp = (int) (Math.log(bytes) / Math.log(unit));
+		String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
+		return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+	}
 
+	public static void verify() {
 		if (validateRemoteSource()) log.info("On a Release Build.");
 		else log.warn("On a Development Build. No Remote Assets!");
+
+		log.info("Verifying Assets...");
 
 		File f = new File("assets");
 
@@ -31,7 +42,7 @@ public class AssetManager {
 		}
 
 		if (exists) log.info("Assets folder was found with success.");
-		if (!exists && !unzipFromRemote()) throw new IllegalStateException("No /assets/ folder. Aborting...");
+		if (!exists) unzipFromRemote();
 	}
 
 	private static void checkDir(String dir) throws IOException {
@@ -40,46 +51,49 @@ public class AssetManager {
 		if (!f.isDirectory() && f.mkdirs()) throw new IOException("Could not make Directory");
 	}
 
-	private static boolean unzipFromRemote() {
-		try {
-			if (!validateRemoteSource()) {
-				throw new IllegalStateException("On a development build, Can't fetch assets.");
-			}
+	@SneakyThrows
+	private static void unzipFromRemote() {
+		if (!validateRemoteSource()) throw new IllegalStateException("On a development build, Can't fetch assets.");
 
-			ZipInputStream input = new ZipInputStream(
-				Unirest.get(MantaroInfo.ASSETS_REMOTE)
-					.asBinary().getRawBody()
-			);
+		log.info("Downloading Assets...");
 
-			ZipEntry entry;
-			while ((entry = input.getNextEntry()) != null) {
-				String name = entry.getName();
+		ZipInputStream input = new ZipInputStream(
+			Unirest.get(MantaroInfo.ASSETS_REMOTE)
+				.asBinary().getRawBody()
+		);
 
-				log.debug("Unzipping " + name);
+		log.info("Unzipping to /assets/...");
 
-				if (entry.isDirectory()) {
-					checkDir("/" + name);
-				} else {
-					FileOutputStream stream = new FileOutputStream("/" + name);
+		Logger zip = LoggerFactory.getLogger("assets.zip");
 
-					for (int c = input.read(); c != -1; c = input.read()) {
-						stream.write(c);
-					}
+		ZipEntry entry;
+		int count = 0;
+		while ((entry = input.getNextEntry()) != null) {
+			String name = entry.getName();
 
-					input.closeEntry();
-					stream.close();
+			count++;
+			if (entry.isDirectory()) {
+				checkDir(name);
+				zip.info("Folder " + name + "(#" + count + ")");
+			} else {
+				FileOutputStream stream = new FileOutputStream(name);
+
+				int size = 0;
+				for (int c = input.read(); c != -1; c = input.read()) {
+					stream.write(c);
+					size++;
 				}
 
+				zip.info("File " + name + "(" + humanReadableByteCount(size, false) + "; #" + count + ")");
+				input.closeEntry();
+				stream.close();
 			}
 
-			input.close();
-		} catch (Exception e) {
-			log.debug("Exception on Unzipping: ", e);
-			return false;
 		}
 
-		log.info("Remote Assets Folder downloaded and extracted.");
-		return true;
+		input.close();
+
+		log.info("Remote Assets Folder downloaded and " + count + " files extracted.");
 	}
 
 	private static boolean validateRemoteSource() {

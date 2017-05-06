@@ -48,7 +48,7 @@ public class AssetManager {
 	private static void checkDir(String dir) throws IOException {
 		File f = new File(dir);
 
-		if (!f.isDirectory() && f.mkdirs()) throw new IOException("Could not make Directory");
+		if (!f.isDirectory()) f.mkdirs();
 	}
 
 	@SneakyThrows

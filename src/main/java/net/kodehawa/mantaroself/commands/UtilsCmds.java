@@ -27,15 +27,12 @@ import us.monoid.web.Resty;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.function.IntConsumer;
-import java.util.function.UnaryOperator;
+import java.util.*;
+import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -285,19 +282,101 @@ public class UtilsCmds {
 
 	@Event
 	public static void utils(CommandRegistry registry) {
-		Map<String, UnaryOperator<String>> utils = new MapObject<String, UnaryOperator<String>>()
-			.with("reverse", s -> "**Reversed**: " + replaceEach(reverse(s), new String[]{"@everyone", "@here"}, new String[]{"@\\everyone", "@\\here"}))
-			.with("randomcolor", s -> "**Random Color**: #" + randomColor())
-			.with("urlencode", s -> "**URL-Encoded**: ``" + encode(s) + "``")
-			.with("urldecode", s -> "**URL-Decoded**: ``" + decode(s) + "``");
+		class Operation {
+			final BiConsumer<String, MessageReceivedEvent> f;
+			final String group, desc;
+
+			Operation(String group, String desc, BiConsumer<String, MessageReceivedEvent> f) {
+				this.group = group;
+				this.desc = desc;
+				this.f = f;
+			}
+
+			Operation(String desc, Consumer<MessageReceivedEvent> f, String group) {
+				this.desc = desc;
+				this.f = (s, event) -> f.accept(event);
+				this.group = group;
+			}
+
+			Operation(String group, String desc, Function<String, String> f) {
+				this.group = group;
+				this.desc = desc;
+				this.f = (s, event) -> event.getChannel().sendMessage(f.apply(s)).queue();
+			}
+
+			Operation(String desc, BiFunction<String, MessageReceivedEvent, String> f, String group) {
+				this.desc = desc;
+				this.f = (s, event) -> event.getChannel().sendMessage(f.apply(s, event)).queue();
+				this.group = group;
+			}
+
+			Operation(String group, String desc, Supplier<String> f) {
+				this.group = group;
+				this.desc = desc;
+				this.f = (s, event) -> event.getChannel().sendMessage(f.get()).queue();
+			}
+
+			public void f(String arg, MessageReceivedEvent event) {
+				f.accept(arg, event);
+			}
+		}
+
+		Map<String, Operation> utils = new MapObject<String, Operation>()
+			.with("reverse", new Operation(
+				"Utilities", "**Reverses the Provided Text**",
+				s -> "**Reversed**: " + replaceEach(reverse(s), new String[]{"@everyone", "@here"}, new String[]{"@\\everyone", "@\\here"})
+			))
+			.with("randomColor", new Operation(
+				"Utilities", "**Generates a Random Color**",
+				() -> "**Random Color**: #" + randomColor()
+			))
+			.with("urlencode", new Operation(
+				"URLEncoding", "**Encodes the Provided Text in URLEncoding**",
+				s -> "**URL-Encoded**: ``" + encode(s) + "``"
+			))
+			.with("urldecode", new Operation(
+				"URLEncoding", "**Encodes the Provided Text in URLEncoding**",
+				s -> "**URL-Decoded**: ``" + decode(s) + "``"
+			))
+			.with("b64encode", new Operation(
+				"Base64", "**Encodes the Provided Text in Base64**",
+				s -> "**Base64 Encoded**: ``" + b64e(s) + "``"
+			))
+			.with("b64decode", new Operation(
+				"Base64", "**Decodes the Provided Text in Base64**",
+				s -> "**Base64 Decoded**: ``" + b64d(s) + "``"
+			));
+
+		Map<String, Set<String>> help = new MapObject<>();
+
+		utils.forEach(
+			(name, operation) -> help
+				.computeIfAbsent(operation.group, k -> new TreeSet<>())
+				.add("``" + prefix() + "utils " + name + "``: " + operation.desc)
+		);
 
 		registry.register("utils", new SimpleCommand(Category.UTILS) {
 			@Override
-			public void call(MessageReceivedEvent event, String content, String[] args) {}
+			public void call(MessageReceivedEvent event, String content, String[] args) {
+				Operation operation = utils.get(args[0]);
+
+				if (operation != null) {
+					operation.f(args[1], event);
+				} else {
+					onHelp(event);
+				}
+			}
+
+			@Override
+			protected String[] splitArgs(String content) {
+				return StringUtils.splitArgs(content, 2);
+			}
 
 			@Override
 			public MessageEmbed help(MessageReceivedEvent event) {
-				return null;
+				EmbedBuilder embed = helpEmbed(event, "Utils command");
+				help.forEach((s, strings) -> embed.addField(s, String.join("\n", strings), false));
+				return embed.build();
 			}
 		});
 	}
@@ -422,6 +501,14 @@ public class UtilsCmds {
 					.build();
 			}
 		});
+	}
+
+	private static String b64d(String s) {
+		return new String(Base64.getDecoder().decode(s.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+	}
+
+	private static String b64e(String s) {
+		return Base64.getEncoder().encodeToString(s.getBytes(StandardCharsets.UTF_8));
 	}
 
 	private static String dateGMT(String timezone) throws ParseException, NullPointerException {

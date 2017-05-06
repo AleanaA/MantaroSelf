@@ -83,6 +83,6 @@ public class AssetManager {
 	}
 
 	private static boolean validateRemoteSource() {
-		return !BUILD.equals("@build@") && !BUILD.startsWith("DEV");
+		return !BUILD.equals("@" + "build" + "@") && !BUILD.startsWith("DEV");
 	}
 }

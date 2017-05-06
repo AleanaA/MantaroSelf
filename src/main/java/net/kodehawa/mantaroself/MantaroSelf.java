@@ -5,7 +5,10 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.core.*;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.OnlineStatus;
 import net.kodehawa.mantaroself.assets.AssetManager;
 import net.kodehawa.mantaroself.core.CommandProcessor;
 import net.kodehawa.mantaroself.core.LoadState;
@@ -66,7 +69,7 @@ public class MantaroSelf implements JDA {
 
 	private MantaroSelf() throws Exception {
 		SimpleLogToSLF4JAdapter.install();
-		log.info("Starting a Mantaro-based Selfbot...");
+		log.info("Starting MantaroSelf (v " + MantaroInfo.VERSION + ", build " + MantaroInfo.BUILD + ")");
 
 		AssetManager.verify();
 
@@ -90,7 +93,7 @@ public class MantaroSelf implements JDA {
 
 		status = LOADED;
 		log.info("[-=-=-=-=-=- SELFBOT STARTED -=-=-=-=-=-]");
-		log.info("Started selfbot v" + VERSION + " on JDA " + JDAInfo.VERSION + " for user " + jda.getSelfUser().getName() + "#" + jda.getSelfUser().getDiscriminator());
+		log.info("Started selfbot v" + VERSION + " for user " + jda.getSelfUser().getName() + "#" + jda.getSelfUser().getDiscriminator());
 
 		MantaroData.config().save();
 		MantaroData.data().save();

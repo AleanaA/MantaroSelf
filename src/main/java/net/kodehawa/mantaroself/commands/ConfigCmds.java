@@ -138,7 +138,7 @@ public class ConfigCmds {
 					.setAuthor("Evaluated " + (errored ? "and errored" : "with success"), null, event.getAuthor().getAvatarUrl())
 					.setColor(errored ? Color.RED : Color.GREEN)
 					.setDescription(result == null ? "Executed successfully with no objects returned" : ("Executed " + (errored ? "and errored: " : "successfully and returned: ") + result.toString()))
-					.addField("Code:", args[0], false)
+					.addField("Code:", args[1], false)
 					.setFooter("Asked by: " + event.getAuthor().getName(), null)
 					.build()
 				).queue();

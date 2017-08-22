@@ -4,6 +4,7 @@
         <img align="right" src="https://i.imgur.com/SWDen2V.png" height="220" width="220">
         <h1>MantaroSelf</h1>
         <p><b>Everything you might want in a customizable and stable selfbot</b></p>
+        <p><b>Kode and Adrian have stopped maintaining this as it's against ToS for discord, however it will remain here for users to download and run. With help from Kode I will continue to make sure that MantaroSelf runs, however I will not be able to assist anyone in running this, and asking for help in the Mantaro server is not allowed anymore.</b></p>
     </header>
     <body>
         <hr>
